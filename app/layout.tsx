@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Language Learning Assistant',
-  description: 'A web app tha t allows learners to speak to a bot to learn how to hold conversations in foreign languages',
+  title: 'LingoListen AI - Language Learning Assistant',
+  description: 'A web app that allows learners to speak to a bot to learn how to hold conversations in foreign languages',
 }
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   )
 }
