@@ -9,26 +9,29 @@ const ThreeScene: React.FC = () => {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(
         75,
-        window.innerWidth / window.innerHeight,
+        500 / 500,
         0.1,
         1000
       );
 
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setClearColor(0xffffff);
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(500, 500);
+      renderer.setPixelRatio(window.devicePixelRatio);
 
       containerRef.current?.appendChild(renderer.domElement);
-      camera.position.z = 5;
+      camera.position.z = 2;
 
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      const cube = new THREE.Mesh(geometry, material);
-      scene.add(cube);
+      const geometry = new THREE.SphereGeometry();
+      const mapImg = new THREE.TextureLoader().load("./uvMap.jpg")
+      const material = new THREE.MeshBasicMaterial({ map: mapImg });
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+      sphere.rotation.y = 23.5 * (Math.PI / 180);
+      sphere.rotation.x = 23.5 * (Math.PI / 180);
 
       const renderScene = () => {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
+        sphere.rotation.y += 0.01;
         renderer.render(scene, camera);
         requestAnimationFrame(renderScene);
       };

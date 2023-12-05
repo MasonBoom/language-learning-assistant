@@ -65,7 +65,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section>
+      <section className="flex justify-center">
         <ThreeScene />
       </section>
     </main>
