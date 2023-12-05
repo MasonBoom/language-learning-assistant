@@ -4,14 +4,18 @@ import ThreeScene from "../components/globe";
 export default function Home() {
   return (
     <main>
-      <section className="text-center p-10 bg-blue-500 text-white">
-        <h1 className="text-4xl font-bold">Welcome to LingoListen AI!</h1>
-        <p className="mt-3">
+      <section className="text-center p-9 bg-blue-500 text-white">
+        <h1 className="text-5xl font-bold">Welcome to LingoListen AI!</h1>
+        <p className="mt-9 mb-9 text-xl">
           Master Conversations in Any Language with AI with our interactive
           AI-powered language learning assistant
         </p>
-        <button className="mt-4 bg-white text-blue-500 px-5 py-2 rounded">
+        <button className="bg-white text-blue-500 px-9 py-2 rounded">
           Start Learning
+        </button>
+        <span className="mx-5">Or</span>
+        <button className="mt-1 bg-transparent border-2 border-white text-white px-16 py-2 rounded">
+          Log In
         </button>
       </section>
       <section className="py-12">
@@ -59,8 +63,8 @@ export default function Home() {
             </div>
             <h3 className="font-semibold">Practice and Learn</h3>
             <p className="text-gray-600 mt-1">
-              Engage in interactive exercises to improve your conversational
-              skills.
+              Engage in voice conversations with AI to improve your
+              conversational skills.
             </p>
           </div>
         </div>

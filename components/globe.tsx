@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import React, { FC, useRef, useEffect } from "react";
 import * as THREE from "three";
 
-const ThreeScene: React.FC = () => {
+export const ThreeScene: FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const ThreeScene: React.FC = () => {
       sphere.rotation.x = 23.5 * (Math.PI / 180);
 
       const renderScene = () => {
-        sphere.rotation.y += 0.01;
+        sphere.rotation.y += 0.005;
         renderer.render(scene, camera);
         requestAnimationFrame(renderScene);
       };
