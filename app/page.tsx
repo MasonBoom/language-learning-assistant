@@ -1,23 +1,11 @@
 "use client";
+import HeroSection from "../components/heroSection";
 import ThreeScene from "../components/globe";
 
 export default function Home() {
   return (
     <main>
-      <section className="text-center p-9 bg-blue-500 text-white">
-        <h1 className="text-5xl font-bold">Welcome to LingoListen AI!</h1>
-        <p className="mt-9 mb-9 text-xl">
-          Master Conversations in Any Language with AI with our interactive
-          AI-powered language learning assistant
-        </p>
-        <button className="bg-white text-blue-500 px-9 py-2 rounded">
-          Start Learning
-        </button>
-        <span className="mx-5">Or</span>
-        <button className="mt-1 bg-transparent border-2 border-white text-white px-16 py-2 rounded">
-          Log In
-        </button>
-      </section>
+      <HeroSection/>
       <section className="py-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">How It Works</h2>
