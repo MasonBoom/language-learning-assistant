@@ -1,9 +1,10 @@
-"use client";
+"use client"
 import React, { FC } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 const Header: FC = () => {
+
   return (
     <header className="bg-blue-500 text-white p-4">
       <div className="mx-auto flex justify-between items-center">
