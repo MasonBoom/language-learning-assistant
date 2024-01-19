@@ -34,6 +34,8 @@ export default function SignUp( { isUserLoggedIn }: SignUpProps ) {
   );
 }
 
+// TODO: look into importing the actions.ts functions below
+
 // serverSideProps
 
 // checkUserAuthentication
