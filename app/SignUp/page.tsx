@@ -1,11 +1,8 @@
 "use client"
 import { useRouter } from 'next/navigation';
 
-
-export default function SignUp( ) {
+export default function SignUp() {
   const router = useRouter();
-
-
 
     // Check if the URL has a code parameter returned by Google
     // if (router.query.code) { 
@@ -17,7 +14,6 @@ export default function SignUp( ) {
   return (
     <main>
       <span>Sign up</span>
-      <button>Sign Up with Google</button>
     </main>
   );
 }
