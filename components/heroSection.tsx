@@ -18,7 +18,7 @@ export default function HeroSection() {
       </Link>
       <span className="mx-5">Or</span>
       <Link
-        href={"/LogIn"}
+        href={"/Login"}
         className={buttonStyles}
       >
         <span className="mx-4">Log In</span>

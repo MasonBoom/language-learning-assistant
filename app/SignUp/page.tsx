@@ -1,7 +1,6 @@
+"use client"
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { IncomingMessage } from 'http';
-import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/navigation';
 
 type SignUpProps = {
   isUserLoggedIn: boolean;
@@ -21,10 +20,10 @@ export default function SignUp( { isUserLoggedIn }: SignUpProps ) {
     }
 
     // Check if the URL has a code parameter returned by Google
-    if (router.query.code) {
-      // Exchange the code for tokens and handle user signup
-      // Typically involves a call to your backend server
-    }
+    // if (router.query.code) { 
+    //   // Exchange the code for tokens and handle user signup
+    //   // Typically involves a call to your backend server
+    // }
   }, [router, isUserLoggedIn]);
 
   return (
@@ -35,21 +34,8 @@ export default function SignUp( { isUserLoggedIn }: SignUpProps ) {
   );
 }
 
-// This function runs on the server before the page is rendered
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  // Example server-side logic: Check if the user is already logged in
-  const isUserLoggedIn = checkUserAuthentication(context.req);
+// TODO: look into importing the actions.ts functions below
 
-  return {
-    props: {
-      isUserLoggedIn, // Pass this as a prop to the component
-    },
-  };
-}
+// serverSideProps
 
-// Dummy function to mimic user authentication check
-function checkUserAuthentication(req: IncomingMessage) {
-  // Implement actual logic to check if the user is logged in
-  // For example, check for a session or a cookie in the request
-  return false;
-}
+// checkUserAuthentication
