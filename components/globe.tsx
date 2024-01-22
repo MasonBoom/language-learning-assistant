@@ -25,7 +25,7 @@ export const ThreeScene: FC = () => {
   useEffect(() => {
     if (typeof window !== "undefined" && containerRef.current) {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 500 / 500, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(65, 500 / 500, 0.1, 1000);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setClearColor(0xffffff);
