@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import clientPromise from "./lib/mongodb"
 import type { NextAuthConfig } from "next-auth";
-import clientPromise from "./connection";
 
 export const config = {
   theme: {
@@ -19,9 +19,9 @@ export const config = {
       const { pathname } = request.nextUrl;
       if (pathname === "/middleware-example") return !!auth;
       return true;
-    },
+    }
   },
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise)
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
