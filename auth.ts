@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import clientPromise from "./lib/mongodb"
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import clientPromise from "./lib/mongodb";
 import type { NextAuthConfig } from "next-auth";
 
 export const config = {
@@ -15,13 +15,14 @@ export const config = {
     }),
   ],
   callbacks: {
-    authorized({  request, auth }: { request: any; auth: any }) {
-      const { pathname } = request.nextUrl;
-      if (pathname === "/middleware-example") return !!auth;
+    async signIn({ user, account, profile, email, credentials }) {
       return true;
-    }
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
+    },
   },
-  adapter: MongoDBAdapter(clientPromise)
+  adapter: MongoDBAdapter(clientPromise),
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
