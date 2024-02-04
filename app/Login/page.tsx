@@ -14,13 +14,16 @@ export default function Login() {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/login", user)
-      .then(() => {
-        console.log("Login success", response);
-        router.push("/profile");
-      })
+      axios.post("/api/login", user)
+        .then((response) => { 
+          console.log("Login success", response);
+          router.push("/profile");
+        })
+        .catch((error: any) => {
+          console.log("Login failed", error.message);
+        });
     } catch (error: any) {
-      console.log("Login failed", error.message);
+      console.log("General error", error.message);
     } 
   };
 
