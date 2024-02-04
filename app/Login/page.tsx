@@ -1,9 +1,30 @@
 "use client";
 import Link from "next/link";
+import React, { FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Login() {
-  const fieldStyles =
-    "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
+  const router = useRouter();
+  const [user, setUser] = React.useState({
+    email: "",
+    password: "",
+  });
+
+  const onLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("/api/login", user)
+      .then(() => {
+        console.log("Login success", response);
+        router.push("/profile");
+      })
+    } catch (error: any) {
+      console.log("Login failed", error.message);
+    } 
+  };
+
+  const fieldStyles = "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
 
   return (
     <main className="flex justify-center items-center h-screen bg-blue-500">
@@ -11,12 +32,17 @@ export default function Login() {
         <h3 className="text-2xl font-bold text-center">
           Login to LingoListen AI
         </h3>
-        <form action="#" className="mt-4">
+        <form onSubmit={onLogin} className="mt-4">
           <div>
             <label className="block" htmlFor="Email">
               Email
             </label>
-            <input type="email" placeholder="Email" className={fieldStyles} />
+            <input
+              type="email"
+              placeholder="Email"
+              className={fieldStyles}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
+            />
           </div>
           <div className="mt-4">
             <label className="block">Password</label>
@@ -24,10 +50,14 @@ export default function Login() {
               type="password"
               placeholder="Password"
               className={fieldStyles}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
           <div className="flex items-center justify-between mt-4">
-            <button className="px-6 py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-400 hover:shadow-sky-900 hover:shadow-md duration-300">
+            <button
+              type="submit"
+              className="px-6 py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-400 hover:shadow-sky-900 hover:shadow-md duration-300"
+            >
               Log In
             </button>
             <Link
@@ -50,52 +80,3 @@ export default function Login() {
     </main>
   );
 }
-
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-// import { Button } from "@/components/ui/button"
-// import { auth } from "@/auth"
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu"
-// import { SignIn, SignOut } from "@/components/auth-components"
-
-// export default async function Login() {
-//   const session = await auth()
-//   if (!session?.user) return <SignIn />
-//   return (
-//     <DropdownMenu>
-//       <DropdownMenuTrigger asChild>
-//         <Button variant="ghost" className="relative w-8 h-8 rounded-full">
-//           <Avatar className="w-8 h-8">
-//             {session.user.image && (
-//               <AvatarImage
-//                 src={session.user.image}
-//                 alt={session.user.name ?? ""}
-//               />
-//             )}
-//             <AvatarFallback>{session.user.email}</AvatarFallback>
-//           </Avatar>
-//         </Button>
-//       </DropdownMenuTrigger>
-//       <DropdownMenuContent className="w-56" align="end" forceMount>
-//         <DropdownMenuLabel className="font-normal">
-//           <div className="flex flex-col space-y-1">
-//             <p className="text-sm font-medium leading-none">
-//               {session.user.name}
-//             </p>
-//             <p className="text-xs leading-none text-muted-foreground">
-//               {session.user.email}
-//             </p>
-//           </div>
-//         </DropdownMenuLabel>
-//         <DropdownMenuItem>
-//           <SignOut />
-//         </DropdownMenuItem>
-//       </DropdownMenuContent>
-//     </DropdownMenu>
-//   )
-// }
