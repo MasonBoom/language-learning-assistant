@@ -16,12 +16,12 @@ export default function Login() {
     try {
       axios.post("/api/login", user)
         .then((response) => { 
-          console.log("Login success", response);
-          router.push("/profile");
+          if (response.data.firstLogin) {
+            router.push('/LanguageSelection');
+          } else {
+            router.push('/dashboard');
+          }
         })
-        .catch((error: any) => {
-          console.log("Login failed", error.message);
-        });
     } catch (error: any) {
       console.log("General error", error.message);
     } 

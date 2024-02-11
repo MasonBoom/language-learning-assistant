@@ -23,6 +23,18 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  nativeLanguage: {
+    type: String,
+    required: false,
+  },
+  learningLanguage: {
+    type: String,
+    required: false,
+  },
+  firstLogin: {
+    type: Boolean,
+    default: true,
+  },
   forgotPasswordToken: String,
   forgotPasswordTokenExpiry: Date,
   verifyToken: String,
