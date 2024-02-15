@@ -25,7 +25,7 @@ const LanguageSelection = () => {
         learningLanguage,
         firstLogin: false,
       });
-      router.push("/profile");
+      router.push("/Dashboard");
     } catch (error) {
       console.error("Error updating language preferences:", error);
     }

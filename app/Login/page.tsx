@@ -19,7 +19,7 @@ export default function Login() {
           if (response.data.firstLogin) {
             router.push('/LanguageSelection');
           } else {
-            router.push('/dashboard');
+            router.push('/Dashboard');
           }
         })
     } catch (error: any) {

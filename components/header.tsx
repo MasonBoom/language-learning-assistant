@@ -1,9 +1,20 @@
-"use client"
+"use client";
 import React, { FC } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 const Header: FC = () => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "GET" });
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <header className="bg-blue-500 text-white p-4">
@@ -13,21 +24,28 @@ const Header: FC = () => {
           <h1 className="text-5xl font-bold ml-9">LingoListen AI</h1>
         </div>
         <nav>
-          <ul className="flex space-x-9">
-            <li>
-              <Link href="/about" className="hover:text-blue-300 text-xl">
+          <ul className="flex space-x-9 mr-9">
+            <li className="hover:scale-110 transition duration-300 text-xl">
+              <Link
+                href="/About"
+                className="hover:scale-110 transition duration-300 text-xl"
+              >
                 About
               </Link>
             </li>
-            <li>
-              <Link href="/features" className="hover:text-blue-300 text-xl">
-                Manage Subscription
+            <li className="hover:scale-110 transition duration-300 text-xl">
+              <Link href="/features">
+
+                  Manage Subscription
+
               </Link>
             </li>
-            <li>
-              <Link href="/contact" className="hover:text-blue-300 text-xl">
+            <li className="hover:scale-110 transition duration-300 text-xl"> 
+              <button
+                onClick={handleLogout}
+              >
                 Log Out
-              </Link>
+              </button>
             </li>
           </ul>
         </nav>
