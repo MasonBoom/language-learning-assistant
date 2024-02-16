@@ -29,6 +29,8 @@ export async function POST(request: Request) {
       username: user.username,
       email: user.email,
       firstLogin: user.firstLogin,
+      learningLanguage: user.learningLanguage,
+      nativeLanguage: user.nativeLanguage
     };
 
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
