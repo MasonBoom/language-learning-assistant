@@ -16,7 +16,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
+      username: user.username,
+      email: user.email,
       learningLanguage: user.learningLanguage,
+      nativeLanguage: user.nativeLanguage,
       // other user data as needed
     });
   } catch (error: any) {
