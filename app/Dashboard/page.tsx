@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import { ChatOpenAI } from "@langchain/openai";
 import axios from "axios";
 
 type ConversationEntry = {
@@ -14,13 +14,23 @@ export default function Dashboard() {
   const [username, setUsername] = useState<string>(""); 
   const [isRecognitionReady, setIsRecognitionReady] = useState(false); 
   const recognitionRef = useRef<Window["SpeechRecognition"] | null>(null);
-  console.log(recognitionRef);
 
   const model = new ChatOpenAI({
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     temperature: 0.5,
-    modelName: "gpt-4",
+    modelName: "gpt-3.5-turbo",
   });
+
+  const handleChatResponse = async (userInput: string) => {
+    try {
+      const message = await model.invoke(userInput);
+      const botReply = message.content as string;
+      setConversation(prev => [...prev, { from: 'bot', text: botReply }]);
+    } catch (error) {
+      console.error('Error with OpenAI API:', error);
+      // Handle error appropriately
+    }
+  };
 
   useEffect(() => {
     axios.get('/api/getUserData')
@@ -61,18 +71,7 @@ export default function Dashboard() {
       .catch(error => {
         console.error('Error fetching user data:', error);
       });
-  }, []);
-
-  const handleChatResponse = async (userInput: string) => {
-    try {
-      const message = await model.invoke(userInput);
-      const botReply = message.content as string;
-      setConversation(prev => [...prev, { from: 'bot', text: botReply }]);
-    } catch (error) {
-      console.error('Error with OpenAI API:', error);
-      // Handle error appropriately
-    }
-  };
+  }, [handleChatResponse, username]);
 
   const toggleListening = () => {
     if (isRecognitionReady) {
