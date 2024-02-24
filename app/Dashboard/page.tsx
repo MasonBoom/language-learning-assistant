@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ChatOpenAI } from "@langchain/openai";
 import axios from "axios";
 
@@ -21,7 +21,7 @@ export default function Dashboard() {
     modelName: "gpt-3.5-turbo",
   });
 
-  const handleChatResponse = async (userInput: string) => {
+  const handleChatResponse = useCallback(async (userInput: string) => {
     try {
       const message = await model.invoke(userInput);
       const botReply = message.content as string;
@@ -30,7 +30,7 @@ export default function Dashboard() {
       console.error('Error with OpenAI API:', error);
       // Handle error appropriately
     }
-  };
+  }, []);
 
   useEffect(() => {
     axios.get('/api/getUserData')
