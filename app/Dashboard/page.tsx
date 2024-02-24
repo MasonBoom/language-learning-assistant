@@ -18,7 +18,7 @@ export default function Dashboard() {
   const model = new ChatOpenAI({
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     temperature: 0.5,
-    modelName: "gpt-3.5-turbo",
+    modelName: "gpt-3.5-turbo-0125",
   });
 
   const handleChatResponse = useCallback(async (userInput: string) => {

@@ -14,20 +14,20 @@ export default function Login() {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      axios.post("/api/login", user)
-        .then((response) => { 
-          if (response.data.firstLogin) {
-            router.push('/LanguageSelection');
-          } else {
-            router.push('/Dashboard');
-          }
-        })
+      axios.post("/api/login", user).then((response) => {
+        if (response.data.firstLogin) {
+          router.push("/LanguageSelection");
+        } else {
+          router.push("/Dashboard");
+        }
+      });
     } catch (error: any) {
       console.log("General error", error.message);
-    } 
+    }
   };
 
-  const fieldStyles = "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
+  const fieldStyles =
+    "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
 
   return (
     <main className="flex justify-center items-center h-screen bg-blue-500">
@@ -63,12 +63,9 @@ export default function Login() {
             >
               Log In
             </button>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
+            <span className="text-sm text-blue-600 hover:underline">
               Forgot Password?
-            </Link>
+            </span>
           </div>
           <div className="text-center mt-4">
             <Link
