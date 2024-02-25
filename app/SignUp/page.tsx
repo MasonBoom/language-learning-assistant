@@ -36,7 +36,7 @@ export default function SignUp() {
         <h3 className="text-2xl font-bold text-center">Join LingoListen AI</h3>
         <div className="mt-4">
           <label className="block" htmlFor="Name">
-            Name
+            First Name
           </label>
           <input
             type="text"

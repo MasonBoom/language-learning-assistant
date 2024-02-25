@@ -1,7 +1,7 @@
-import { getDataFromToken } from '@/helpers/getDataFromToken';
+import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import { NextRequest,NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const userId = getDataFromToken(request);
 
-    const { nativeLanguage, learningLanguage } = reqBody;
+    const { nativeLanguage, learningLanguage, difficulty } = reqBody;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
 
     user.nativeLanguage = nativeLanguage;
     user.learningLanguage = learningLanguage;
+    user.difficulty = difficulty;
     user.firstLogin = false;
     await user.save();
 

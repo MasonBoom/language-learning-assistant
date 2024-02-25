@@ -15,10 +15,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please provide a password"],
   },
-  isVerfied: {
-    type: Boolean,
-    default: false,
-  },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -28,6 +24,10 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   learningLanguage: {
+    type: String,
+    required: false,
+  },
+  difficulty: {
     type: String,
     required: false,
   },

@@ -8,6 +8,7 @@ connect();
 export async function POST(request: Request) {
   try {
     const reqBody = await request.json();
+    console.log(reqBody);
     const { username, email, password } = reqBody;
     const user = await User.findOne({ email });
 
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
       savedUser,
     });
   } catch (error: any) {
+    console.error("Signup Error:", error.message); 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
