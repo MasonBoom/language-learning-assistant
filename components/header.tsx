@@ -17,7 +17,7 @@ const Header: FC = () => {
   };
 
   return (
-    <header className="bg-blue-500 text-white p-4">
+    <header className="bg-blue-500 text-white p-4 fixed top-0 left-0 right-0 z-10">
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <Image src="/logo.png" alt="our logo" width={90} height={90} />
@@ -27,25 +27,17 @@ const Header: FC = () => {
           <ul className="flex space-x-9 mr-9">
             <li className="hover:scale-110 transition duration-300 text-xl">
               <Link
-                href="/About"
+                href="/LanguageSelection"
                 className="hover:scale-110 transition duration-300 text-xl"
               >
-                About
+                Language Settings
               </Link>
             </li>
             <li className="hover:scale-110 transition duration-300 text-xl">
-              <Link href="/features">
-
-                  Manage Subscription
-
-              </Link>
+              <Link href="/features">Manage Subscription</Link>
             </li>
-            <li className="hover:scale-110 transition duration-300 text-xl"> 
-              <button
-                onClick={handleLogout}
-              >
-                Log Out
-              </button>
+            <li className="hover:scale-110 transition duration-300 text-xl">
+              <button onClick={handleLogout}>Log Out</button>
             </li>
           </ul>
         </nav>

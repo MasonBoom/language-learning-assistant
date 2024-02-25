@@ -32,7 +32,7 @@ export default function SignUp() {
       onSubmit={onSignUp}
       className="flex justify-center items-center h-screen bg-blue-500"
     >
-      <div className="w-full max-w-xl px-8 py-8 mt-4 text-left bg-white shadow-lg">
+      <div className="w-full max-w-xl px-8 py-8 mt-4 text-left bg-white shadow-lg rounded-lg mb-12">
         <h3 className="text-2xl font-bold text-center">Join LingoListen AI</h3>
         <div className="mt-4">
           <label className="block" htmlFor="Name">
