@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 const LanguageSelection = () => {
   const router = useRouter();
   const [userName, setUserName] = useState("");
-  const [nativeLanguage, setNativeLanguage] = useState("");
-  const [learningLanguage, setLearningLanguage] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [nativeLanguage, setNativeLanguage] = useState("English");
+  const [learningLanguage, setLearningLanguage] = useState("English");
+  const [difficulty, setDifficulty] = useState("Beginner");
 
   useEffect(() => {
     axios.get('/api/getUserData')
@@ -32,6 +32,10 @@ const LanguageSelection = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (nativeLanguage === learningLanguage) {
+      alert("Native language and learning language must be different.");
+      return;
+    }
     try {
       await axios.post("/api/languagePreferences", {
         nativeLanguage,

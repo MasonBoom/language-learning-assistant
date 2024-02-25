@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       email: user.email,
       learningLanguage: user.learningLanguage,
       nativeLanguage: user.nativeLanguage,
+      difficulty: user.difficulty,
       // other user data as needed
     });
   } catch (error: any) {

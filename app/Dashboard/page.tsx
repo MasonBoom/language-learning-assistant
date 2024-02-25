@@ -9,9 +9,9 @@ type ConversationEntry = {
 };
 
 export default function Dashboard() {
+  const [userData, setUserData] = useState({} as any)
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [isListening, setIsListening] = useState(false);
-  const [username, setUsername] = useState<string>(""); 
   const [isRecognitionReady, setIsRecognitionReady] = useState(false); 
   const recognitionRef = useRef<Window["SpeechRecognition"] | null>(null);
 
@@ -35,24 +35,21 @@ export default function Dashboard() {
   useEffect(() => {
     axios.get('/api/getUserData')
       .then(response => {
-        console.log('User data:', response.data);
+        setUserData(response.data);
         const userLanguage = response.data.learningLanguage as string;
-        setUsername(response.data.username); 
 
         if ('webkitSpeechRecognition' in window) {
           const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
           recognitionRef.current = new SpeechRecognition(); 
-          console.log(recognitionRef);
           recognitionRef.current.lang = userLanguage;
           recognitionRef.current.interimResults = false;
           recognitionRef.current.maxAlternatives = 1;
           setIsRecognitionReady(true); 
 
           recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-            console.log("Speech recognized"); 
             const last = event.results.length - 1;
             const text = event.results[last][0].transcript;
-            setConversation(prev => [...prev, { from: username, text }]);
+            setConversation(prev => [...prev, { from: response.data.username, text }]);
             handleChatResponse(text);
           };
 
@@ -61,7 +58,6 @@ export default function Dashboard() {
           };
 
           recognitionRef.current.onend = () => {
-            console.log("Speech recognition ended"); 
             setIsListening(false);
           };
         } else {
@@ -71,7 +67,7 @@ export default function Dashboard() {
       .catch(error => {
         console.error('Error fetching user data:', error);
       });
-  }, [handleChatResponse, username]);
+  }, [handleChatResponse, setUserData]);
 
   const toggleListening = () => {
     if (isRecognitionReady) {
@@ -88,10 +84,14 @@ export default function Dashboard() {
     <div>
       <main className="bg-white text-blue-500">
         <section className="text-center p-8 z-10">
-          <h1 className="text-5xl font-bold">Welcome, {username}</h1>
-          <p className="mt-9 mb-9 text-xl">
-            Practice conversations in your chosen language.
+          <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
+          <p className="mt-9 mb-3 text-xl">
+            Practice conversations in {userData.learningLanguage}.
           </p>
+          {userData.difficulty === "Beginner" ? <p className="mb-24">Tip: Start the conversation with a simple introduction</p> : null}
+          {
+          // Add more tips for different difficulty levels
+          }
           <button onClick={toggleListening}>
             {isListening ? 'Stop' : 'Start'} Voice Chat
           </button>
