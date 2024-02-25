@@ -1,6 +1,7 @@
 "use client";
 import HeroSection from "../components/heroSection";
 import ThreeScene from "../components/globe";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -15,10 +16,12 @@ export default function Home() {
         <div className="flex justify-center items-center space-x-8">
           <div className="text-center w-96">
             <div className="mb-2">
-              <img
+              <Image
                 src="/microphone.svg"
                 alt="Speak"
-                className="mx-auto h-12 w-12"
+                width={48}
+                height={48}
+                className="mx-auto"
               />
             </div>
             <h3 className="font-semibold">Speak into the Microphone</h3>
@@ -29,9 +32,11 @@ export default function Home() {
           </div>
           <div className="text-center w-96">
             <div className="mb-2">
-              <img
+              <Image
                 src="/ai.png"
                 alt="AI Response"
+                width={48}
+                height={48}
                 className="mx-auto h-12 w-12"
               />
             </div>
@@ -43,9 +48,11 @@ export default function Home() {
           </div>
           <div className="text-center w-96">
             <div className="mb-2">
-              <img
+              <Image
                 src="/target.svg"
                 alt="Practice"
+                width={48}
+                height={48}
                 className="mx-auto h-12 w-12"
               />
             </div>
