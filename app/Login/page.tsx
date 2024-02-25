@@ -31,7 +31,7 @@ export default function Login() {
 
   return (
     <main className="flex justify-center items-center h-screen bg-blue-500">
-      <div className="w-full max-w-lg px-8 py-8 mt-4 text-left bg-white shadow-lg">
+      <div className="w-full max-w-lg px-8 py-8 text-left bg-white shadow-lg rounded-lg mb-12">
         <h3 className="text-2xl font-bold text-center">
           Login to LingoListen AI
         </h3>
