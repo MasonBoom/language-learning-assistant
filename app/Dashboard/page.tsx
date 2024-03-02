@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   const handleChatResponse = useCallback(async (userInput: string) => {
     try {
-      const message = await model.invoke(userInput);
+      const message = await model.invoke(userInput + `Please respond in ${userData.learningLanguage}`);
       const botReply = message.content as string;
       setConversation((prev) => [...prev, { from: "bot", text: botReply }]);
     } catch (error) {
