@@ -17,10 +17,20 @@ export default function Dashboard() {
   const [isRecognitionReady, setIsRecognitionReady] = useState(false);
   const recognitionRef = useRef<Window["SpeechRecognition"] | null>(null);
 
+  const maxTokensByDifficulty = {
+    Beginner: 50,
+    Intermediate: 100,
+    Expert: 150,
+    Fluent: 300,
+  };
+  const setMaxTokens =
+    maxTokensByDifficulty[userData.difficulty as DifficultyLevel];
+
   const model = new ChatOpenAI({
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     temperature: 0.5,
     modelName: "gpt-3.5-turbo-0125",
+    maxTokens: setMaxTokens,
   });
 
   const difficultyTips: Record<DifficultyLevel, string> = {
@@ -36,7 +46,9 @@ export default function Dashboard() {
 
   const handleChatResponse = useCallback(async (userInput: string) => {
     try {
-      const message = await model.invoke(userInput + `Please respond in ${userData.learningLanguage}`);
+      const message = await model.invoke(
+        userInput + `Please respond in ${userData.learningLanguage}`
+      );
       const botReply = message.content as string;
       setConversation((prev) => [...prev, { from: "bot", text: botReply }]);
     } catch (error) {
