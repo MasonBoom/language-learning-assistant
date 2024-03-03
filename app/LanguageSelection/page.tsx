@@ -32,10 +32,22 @@ const LanguageSelection = () => {
   const languages = [
     "English",
     "Spanish",
-    "French",
     "German",
-    "Chinese",
-    "Japanese",
+    "French",
+    "Portuguese",
+    "Indonesian",
+    "Turkish",
+    "Italian",
+    "Polish",
+    "Dutch",
+    "Romanian",
+    "Slovak",
+    "Danish",
+    "Swedish",
+    "Catalan",
+    "Hungarian",
+    "Croatian",
+    "Slovenian",
   ];
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
