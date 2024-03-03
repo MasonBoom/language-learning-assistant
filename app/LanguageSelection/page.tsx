@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserData from "@/components/customHooks/useUserData";
@@ -7,9 +7,17 @@ import useUserData from "@/components/customHooks/useUserData";
 const LanguageSelection = () => {
   const router = useRouter();
   const { userData, isLoading, error } = useUserData();
-  const [nativeLanguage, setNativeLanguage] = useState("English");
-  const [learningLanguage, setLearningLanguage] = useState("English");
-  const [difficulty, setDifficulty] = useState("Beginner");
+  const [nativeLanguage, setNativeLanguage] = useState(userData.nativeLanguage);
+  const [learningLanguage, setLearningLanguage] = useState(userData.learningLanguage);
+  const [difficulty, setDifficulty] = useState(userData.difficulty);
+
+  useEffect(() => {
+    if (userData && !isLoading && !error) {
+      setNativeLanguage(userData.nativeLanguage);
+      setLearningLanguage(userData.learningLanguage);
+      setDifficulty(userData.difficulty);
+    }
+  }, [userData, isLoading, error]);
 
   if (isLoading) {
     return <div>Loading...</div>;
