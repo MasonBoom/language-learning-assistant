@@ -32,8 +32,8 @@ LingoListen AI is an innovative, AI-powered language learning platform designed 
 
 ## Installation and Setup
 
-1. **Clone the repository:******
-2. **Install dependencies:**
+1. **Clone the repository using `git clone`**
+2. **Install dependencies using `npm install`**
 3. **Set up environment variables:**
 Create a `.env.local` file in the root directory and add the necessary environment variables (e.g., `MONGODB_URI`, `TOKEN_SECRET`, `NEXT_PUBLIC_OPENAI_KEY`).
 
