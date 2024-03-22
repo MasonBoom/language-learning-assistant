@@ -2,6 +2,7 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
 
 const LanguageSelection = () => {
@@ -20,7 +21,7 @@ const LanguageSelection = () => {
   }, [userData, isLoading, error]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   if (error) {
