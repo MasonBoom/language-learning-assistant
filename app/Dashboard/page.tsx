@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
 import { ChatOpenAI } from "@langchain/openai";
 
@@ -135,7 +136,7 @@ export default function Dashboard() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   if (error) {
@@ -161,13 +162,15 @@ export default function Dashboard() {
           </button>
         </section>
         <section className="flex justify-center p-8">
-          <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 text-lg">
+          {conversation.length > 0 ? (
+            <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 text-lg">
             {conversation.map((entry, index) => (
               <p key={index}>
                 {entry.from}: {entry.text}
               </p>
             ))}
-          </div>
+          </div> 
+          ) : null}
         </section>
       </main>
     </div>
