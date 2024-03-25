@@ -9,8 +9,11 @@ const LanguageSelection = () => {
   const router = useRouter();
   const { userData, isLoading, error } = useUserData();
   const [nativeLanguage, setNativeLanguage] = useState(userData.nativeLanguage);
-  const [learningLanguage, setLearningLanguage] = useState(userData.learningLanguage);
+  const [learningLanguage, setLearningLanguage] = useState(
+    userData.learningLanguage
+  );
   const [difficulty, setDifficulty] = useState(userData.difficulty);
+  const [showText, setShowText] = useState(false);
 
   useEffect(() => {
     if (userData && !isLoading && !error) {
@@ -21,7 +24,7 @@ const LanguageSelection = () => {
   }, [userData, isLoading, error]);
 
   if (isLoading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   if (error) {
@@ -47,9 +50,9 @@ const LanguageSelection = () => {
     "Norwegian",
     "Czech",
     "Catalan",
-    "Croatian", 
+    "Croatian",
     "Hungarian",
-    "Finnish", 
+    "Finnish",
     "Slovak",
     "Galician",
     "Slovenian",
@@ -62,6 +65,9 @@ const LanguageSelection = () => {
     "Malay",
     "Tagalog",
     "Swahili",
+  ];
+
+  const nonLatinLanguages = [
     "Chinese (Mandarin)",
     "Hindi",
     "Russian",
@@ -86,8 +92,19 @@ const LanguageSelection = () => {
     "Ukrainian",
     "Bulgarian",
     "Nepali",
-    "Maori"
+    "Maori",
   ];
+
+  const allLanguages = [...languages, ...nonLatinLanguages];
+
+  const handleLanguageChange = (language: string) => {
+    setLearningLanguage(language);
+    if (nonLatinLanguages.includes(language)) {
+      setShowText(true);
+    } else {
+      setShowText(false);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -145,14 +162,22 @@ const LanguageSelection = () => {
             <select
               className={selectStyles}
               value={learningLanguage}
-              onChange={(e) => setLearningLanguage(e.target.value)}
+              onChange={(e) => handleLanguageChange(e.target.value)}
             >
-              {languages.map((lang) => (
+              {allLanguages.map((lang) => (
                 <option key={lang} value={lang}>
                   {lang}
                 </option>
               ))}
             </select>
+            {showText && (
+              <p className="mt-2 text-md">
+                Warning: Languages that don't use a Latin-based script may have
+                limited support for audio transcription. We recommend practicing
+                in Latin-based languages unless your pronunciation in the
+                selected language is very clear.
+              </p>
+            )}
           </div>
           <div className="mb-4">
             <label className="block mb-2">Difficulty Level:</label>
