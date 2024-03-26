@@ -163,7 +163,7 @@ export default function Dashboard() {
         console.error("Error with OpenAI API:", error);
       }
     },
-    [model, prompt]
+    [model, prompt, convertTextToSpeech]
   );
 
   if (isLoading) {
