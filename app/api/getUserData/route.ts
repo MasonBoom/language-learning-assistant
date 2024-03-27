@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
       learningLanguage: user.learningLanguage,
       nativeLanguage: user.nativeLanguage,
       difficulty: user.difficulty,
-      // other user data as needed
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
