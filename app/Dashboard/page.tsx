@@ -14,14 +14,14 @@ type DifficultyLevel = "Beginner" | "Intermediate" | "Expert" | "Fluent";
 export default function Dashboard() {
   const { userData, isLoading, error } = useUserData();
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
-  const [isListening, setIsListening] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [hasUserSpoken, setHasUserSpoken] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
-  const beginnerPrompt = `Your name is no longer ChatGPT. Your name is LingoListen AI. You are a language learning assistant. Imagine you are talking to someone who is just learning whatever language they start the conversation in. Respond by asking them how their day was or how they are doing. Keep your sentences short, simple, and easy to understand. Please reply with only one or two sentences at a time unless the user shows signs of increased proficiency. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
-  const intermediatePrompt = `Your name is no longer ChatGPT. Your name is LingoListen AI. You are a language learning assistant. Engage in conversations about daily routines, hobbies, and interests with someone who has a basic understanding of the language. For instance, discuss favorite movies or describe typical days. Use moderately complex sentences, and encourage the user to expand their vocabulary. Reply with two to three sentences, gradually introducing new words and phrases. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
-  const expertPrompt = `Your name is no longer ChatGPT. Your name is LingoListen AI. You are a language learning assistant. Dive into abstract topics, current events, or cultural differences. Challenge the user with complex sentence structures and nuanced vocabulary. Engage in debates or thought-provoking discussions, responding in detailed paragraphs. Encourage expression of opinions and feelings, and use this opportunity to refine their understanding of idiomatic expressions and advanced language concepts. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
-  const fluentPrompt = `Your name is no longer ChatGPT. Your name is LingoListen AI. You are a language learning assistant. Discuss complex subjects like history, philosophy, or technology. Focus on the subtleties of the language, idiomatic expressions, and cultural references. Engage in long-form discussions, using sophisticated and intricate language structures. Provide detailed responses, mimicking the fluency and accent of a native speaker, to help the user perfect their command of the language. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
+  const beginnerPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Imagine you are talking to someone who is just learning whatever language they start the conversation in. Respond by asking them how their day was or how they are doing. Keep your sentences short, simple, and easy to understand. Please reply with only one or two sentences at a time unless the user shows signs of increased proficiency. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
+  const intermediatePrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Engage in conversations about daily routines, hobbies, and interests with someone who has a basic understanding of the language. For instance, discuss favorite movies or describe typical days. Use moderately complex sentences, and encourage the user to expand their vocabulary. Reply with two to three sentences, gradually introducing new words and phrases. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
+  const expertPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Dive into abstract topics, current events, or cultural differences. Challenge the user with complex sentence structures and nuanced vocabulary. Engage in debates or thought-provoking discussions, responding in detailed paragraphs. Encourage expression of opinions and feelings, and use this opportunity to refine their understanding of idiomatic expressions and advanced language concepts. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
+  const fluentPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Discuss complex subjects like history, philosophy, or technology. Focus on the subtleties of the language, idiomatic expressions, and cultural references. Engage in long-form discussions, using sophisticated and intricate language structures. Provide detailed responses, mimicking the fluency and accent of a native speaker, to help the user perfect their command of the language. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
 
   const prompts = {
     Beginner: beginnerPrompt,
@@ -33,10 +33,10 @@ export default function Dashboard() {
   const prompt = prompts[userData.difficulty as DifficultyLevel];
 
   const maxTokensByDifficulty = {
-    Beginner: 50,
-    Intermediate: 100,
-    Expert: 200,
-    Fluent: 500,
+    Beginner: 30,
+    Intermediate: 70,
+    Expert: 150,
+    Fluent: 350,
   };
   const setMaxTokens =
     maxTokensByDifficulty[userData.difficulty as DifficultyLevel];
@@ -87,25 +87,28 @@ export default function Dashboard() {
   const transcribeAudio = async (audioBlob: Blob) => {
     const formData = new FormData();
     formData.append("file", audioBlob, "audio.mp3");
-    formData.append("model", "whisper-1");  // Add the model parameter here
-  
+    formData.append("model", "whisper-1");
+
     console.log("Sending audio for transcription");
-  
+
     try {
-      const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
-        },
-        body: formData,
-      });
-  
+      const response = await fetch(
+        "https://api.openai.com/v1/audio/transcriptions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
+          },
+          body: formData,
+        }
+      );
+
       if (!response.ok) {
-        console.error('Response status:', response.status);
-        console.error('Response body:', await response.text());
+        console.error("Response status:", response.status);
+        console.error("Response body:", await response.text());
         throw new Error(`Error: ${response.statusText}`);
       }
-  
+
       const data = await response.json();
       console.log("Transcription data:", data);
       handleChatResponse(data.text);
@@ -123,7 +126,7 @@ export default function Dashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "tts-1",
+          model: "tts-1-hd",
           voice: "alloy",
           input: text,
         }),
@@ -143,14 +146,24 @@ export default function Dashboard() {
 
   const playAudio = (audioUrl: string) => {
     const audio = new Audio(audioUrl);
+    audio.playbackRate = 0.7;
     audio.play();
   };
 
   const handleChatResponse = useCallback(
     async (userInput: string) => {
       try {
-        const message = await model.invoke(prompt + userInput);
+        let userPrompt;
+        if (hasUserSpoken) {
+          userPrompt = userInput;
+        } else {
+          userPrompt = prompt + userInput;
+          setHasUserSpoken(true);
+        }
+
+        const message = await model.invoke(userPrompt);
         const botReply = message.content as string;
+        console.log(userPrompt);
 
         setConversation((prev) => [
           ...prev,
@@ -163,7 +176,7 @@ export default function Dashboard() {
         console.error("Error with OpenAI API:", error);
       }
     },
-    [model, prompt, convertTextToSpeech]
+    [model, prompt, hasUserSpoken, convertTextToSpeech]
   );
 
   if (isLoading) {
@@ -194,7 +207,7 @@ export default function Dashboard() {
         </section>
         <section className="flex justify-center p-8">
           {conversation.length > 0 ? (
-            <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 text-lg">
+            <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 md:text-lg text-sm overflow-y-scroll lg:max-h-96 md:max-h-72 sm:max-h-48">
               {conversation.map((entry, index) => (
                 <p key={index}>
                   {entry.from}: {entry.text}
