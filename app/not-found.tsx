@@ -1,5 +1,5 @@
 import React from "react";
-import "@/styles/custom404.css"; 
+import "@/styles/custom404.css";
 
 const Custom404: React.FC = () => {
   return (
@@ -18,7 +18,9 @@ const Custom404: React.FC = () => {
             <div className="w-auto h-auto rounded-lg">
               <div className="w-[11em] h-[7.75em] flex items-center justify-center rounded-lg">
                 <div className="screen w-[13em] h-[7.85em] border-2 border-[#1d0e01] rounded-lg z-50 flex items-center justify-center font-bold tracking-wider text-center">
-                  <span className="bg-black px-[0.3em] text-[0.75em] text-white rounded-[5px] z-10"> NOT FOUND</span>
+                  <span className="bg-black px-[0.3em] text-[0.75em] text-white rounded-[5px] z-10">
+                    NOT FOUND
+                  </span>
                 </div>
               </div>
             </div>
@@ -39,7 +41,7 @@ const Custom404: React.FC = () => {
                 <div className="g12 bg-blue-500" />
                 <div className="g13 bg-blue-500" />
               </div>
-              <div className="g"/>
+              <div className="g" />
               <div className="g" />
             </div>
           </div>

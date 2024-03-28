@@ -172,10 +172,10 @@ const LanguageSelection = () => {
             </select>
             {showText && (
               <p className="mt-2 text-md">
-                Warning: Languages that don&apos;t use a Latin-based script may have
-                limited support for audio transcription. We recommend practicing
-                in Latin-based languages unless your pronunciation in the
-                selected language is very clear.
+                Warning: Languages that don&apos;t use a Latin-based script may
+                have limited support for audio transcription. We recommend
+                practicing in Latin-based languages unless your pronunciation in
+                the selected language is very clear.
               </p>
             )}
           </div>

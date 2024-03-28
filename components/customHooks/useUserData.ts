@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const useUserData = () => {
   const [userData, setUserData] = useState({} as any);
@@ -9,7 +9,7 @@ const useUserData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/getUserData');
+        const response = await axios.get("/api/getUserData");
         setUserData(response.data);
       } catch (error: any) {
         setError(error);

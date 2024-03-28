@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main>
-      <HeroSection/>
+      <HeroSection />
       <section className="py-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">How It Works</h2>
