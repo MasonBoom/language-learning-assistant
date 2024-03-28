@@ -6,18 +6,20 @@ export default function HeroSection() {
 
   return (
     <section className="text-center p-8 bg-blue-500 text-white z-10">
-      <h1 className="text-5xl font-bold">Welcome to LingoListen AI!</h1>
-      <p className="mt-9 mb-9 text-xl">
+      <h1 className="sm:text-5xl text-2xl font-bold">Welcome to LingoListen AI!</h1>
+      <p className="sm:my-9 my-4 md:text-xl">
         Master Conversations in Any Language with AI with our interactive
         AI-powered language learning assistant
       </p>
-      <Link href={"/SignUp"} className={buttonStyles}>
-        Start Learning
-      </Link>
-      <span className="mx-5">Or</span>
-      <Link href={"/Login"} className={buttonStyles}>
-        <span className="mx-4">Log In</span>
-      </Link>
+      <div className="flex sm:flex-row flex-col justify-center">
+        <Link href={"/SignUp"} className={buttonStyles}>
+          Start Learning
+        </Link>
+        <span className="mx-5 self-center">Or</span>
+        <Link href={"/Login"} className={buttonStyles}>
+          <span className="mx-4">Log In</span>
+        </Link>
+      </div>
     </section>
   );
 }

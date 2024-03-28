@@ -7,14 +7,14 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <section className="py-12">
-        <div className="text-center mb-12">
+      <section className="md:py-12 py-5">
+        <div className="text-center md:mb-12">
           <h2 className="text-3xl font-bold mb-4">How It Works</h2>
           <p className="text-gray-600">Simple steps to language mastery</p>
         </div>
 
-        <div className="flex justify-center items-center space-x-8">
-          <div className="text-center w-96">
+        <div className="flex flex-col md:flex-row justify-center items-center">
+          <div className="text-center lg:w-96 w-64 lg:mx-0 mx-9 md:my-0 my-9">
             <div className="mb-2">
               <Image
                 src="/microphone.svg"
@@ -30,7 +30,7 @@ export default function Home() {
               target language.
             </p>
           </div>
-          <div className="text-center w-96">
+          <div className="text-center lg:w-96 w-64 lg:mx-0 mx-9 md:my-0 my-9">
             <div className="mb-2">
               <Image
                 src="/ai.png"
@@ -46,7 +46,7 @@ export default function Home() {
               response.
             </p>
           </div>
-          <div className="text-center w-96">
+          <div className="text-center lg:w-96 w-64 lg:mx-0 mx-9 md:my-0 my-9">
             <div className="mb-2">
               <Image
                 src="/target.svg"
@@ -64,7 +64,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="flex justify-center">
+      <section className="md:flex hidden justify-center">
         <ThreeScene />
       </section>
     </main>
