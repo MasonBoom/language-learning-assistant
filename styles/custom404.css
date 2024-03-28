@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+.antenna_shadow {
+  box-shadow: inset 0px 16px rgb(37, 99, 235), inset 0px 16px 1px 1px rgb(37, 99, 235);
+  -moz-box-shadow: inset 0px 16px rgb(37, 99, 235), inset 0px 16px 1px 1px rgb(37, 99, 235);
+}
+
+.antenna::after {
+  content: "";
+  position: absolute;
+  margin-top: -9.4em;
+  margin-left: 0.4em;
+  transform: rotate(-25deg);
+  width: 1em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: rgb(96 165 250);
+}
+
+.antenna::before {
+  content: "";
+  position: absolute;
+  margin-top: 0.2em;
+  margin-left: 1.25em;
+  transform: rotate(-20deg);
+  width: 1.5em;
+  height: 0.8em;
+  border-radius: 50%;
+  background-color: rgb(96 165 250);
+}
+
+.a1 {
+  background-image: linear-gradient(#171717, #171717, #353535, #353535, #171717);
+  clip-path: polygon(50% 0%, 49% 100%, 52% 100%);
+}
+
+.a1d {
+  top: -211%;
+  left: -35%;
+  width: 0.5em;
+  height: 0.5em;
+  background-color: #979797;
+  z-index: 99;
+}
+
+.a2 {
+  background-image: linear-gradient(#171717, #171717, #353535, #353535, #171717);
+  clip-path: polygon(47% 0, 47% 0, 34% 34%, 54% 25%, 32% 100%, 29% 96%, 49% 32%, 30% 38%);
+  transform: rotate(-8deg);
+}
+
+.display_div {
+  box-shadow: 3.5px 3.5px 0px rgb(96 165 250);
+}
+
+.screen {
+  font-family: 'Montserrat', sans-serif;
+  background: repeating-radial-gradient(#000 0 0.0001%, #ffffff 0 0.0002%) 50% 0/2500px 2500px, repeating-conic-gradient(#000 0 0.0001%, #ffffff 0 0.0002%) 60% 60%/2500px 2500px;
+  background-blend-mode: difference;
+  animation: b 0.2s infinite alternate;
+}
+
+@keyframes b {
+  100% {
+    background-position: 50% 0, 60% 50%;
+  }
+}
+
+.lines {
+  column-gap: 0.1em;
+}
+
+.line1,
+.line3 {
+  border-radius: 25px 25px 0px 0px;
+}
+
+.line2 {
+  border-radius: 25px 25px 0px 0px;
+}
+
+.b1 {
+  box-shadow: inset 2px 2px 1px rgb(96 165 250), -2px 0px rgb(37 99 235), -2px 0px 0px 1px black;
+}
+
+.b1::before {
+  content: "";
+  position: absolute;
+  margin-top: 1em;
+  margin-left: 0.5em;
+  transform: rotate(47deg);
+  border-radius: 5px;
+  width: 0.1em;
+  height: 0.4em;
+  background-color: #000000;
+}
+
+.b1::after {
+  content: "";
+  position: absolute;
+  margin-top: 0.9em;
+  margin-left: 0.8em;
+  transform: rotate(47deg);
+  border-radius: 5px;
+  width: 0.1em;
+  height: 0.55em;
+  background-color: #000000;
+}
+
+.b1 div {
+  content: "";
+  position: absolute;
+  margin-top: -0.1em;
+  margin-left: 0.65em;
+  transform: rotate(45deg);
+  width: 0.15em;
+  height: 1.5em;
+  background-color: #000000;
+}
+
+.b2 {
+  width: 1.65em;
+  height: 1.65em;
+  box-shadow: inset 2px 2px 1px rgb(96 165 250), -2px 0px rgb(37 99 235), -2px 0px 0px 1px black;
+}
+
+.b2::before {
+  content: "";
+  position: absolute;
+  margin-top: 1.05em;
+  margin-left: 0.8em;
+  transform: rotate(-45deg);
+  border-radius: 5px;
+  width: 0.15em;
+  height: 0.4em;
+  background-color: #000000;
+}
+
+.b2::after {
+  content: "";
+  position: absolute;
+  margin-top: -0.1em;
+  margin-left: 0.65em;
+  transform: rotate(-45deg);
+  width: 0.15em;
+  height: 1.5em;
+  background-color: #000000;
+}
+
+.speakers {
+  row-gap: 0.5em;
+}
+
+.speakers .g1 {
+  column-gap: 0.25em;
+}
+
+.speakers .g1 .g11,
+.g12,
+.g13 {
+  width: 0.65em;
+  height: 0.65em;
+  border-radius: 50%;
+  border: 2px solid black;
+  box-shadow: inset 1.25px 1.25px 1px rgb(96 165 250);
+}
+
+.speakers .g {
+  width: auto;
+  height: 2px;
+  background-color: black;
+}
+
+.bottom {
+  column-gap: 8.7em;
+}
+
+.base1 {
+  margin-top: -0.15em;
+  z-index: -1;
+}
+
+.base2 {
+  margin-top: -0.15em;
+  z-index: -1;
+}
+
+.base3 {
+  height: 0.15em;
+  width: 17.5em;
+  margin-top: 0.8em;
+}
+
+.text_404 {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  column-gap: 6em;
+  z-index: -5;
+  margin-bottom: 2em;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  font-family: Montserrat;
+}
+
+.text_4041 {
+  transform: scaleY(24.5) scaleX(10);
+}
+
+.text_4042 {
+  transform: scaleY(24.5) scaleX(10);
+}
+
+.text_4043 {
+  transform: scaleY(24.5) scaleX(10);
+}
