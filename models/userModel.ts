@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   difficulty: {
     type: String,
-    default: "Beginner"
+    default: "Beginner",
   },
   firstLogin: {
     type: Boolean,
