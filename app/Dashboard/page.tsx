@@ -157,8 +157,8 @@ export default function Dashboard() {
 
         setConversation((prev) => [
           ...prev,
-          { from: "user", text: userInput },
-          { from: "bot", text: botReply },
+          { from: userData.username, text: userInput },
+          { from: "LingoListen AI", text: botReply },
         ]);
 
         await convertTextToSpeech(botReply);
