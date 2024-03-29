@@ -17,7 +17,7 @@ export default function RootLayout({
 
   useEffect(() => {
     if (!userData.firstLogin) {
-      const noHeaderFooterPages = ["/", "/Login", "/SignUp"];
+      const noHeaderFooterPages = ["/", "/Login", "/SignUp", "ForgotPassword"];
       setShowHeaderFooter(!noHeaderFooterPages.includes(pathname));
     } else {
       const noHeaderFooterPages = [
@@ -33,9 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <main className="flex flex-col">
         {showHeaderFooter && <Header />}
-        <main>{children}</main>
+        <div>{children}</div>
         {showHeaderFooter && <Footer />}
+        </main>
       </body>
     </html>
   );

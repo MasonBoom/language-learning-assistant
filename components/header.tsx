@@ -17,26 +17,29 @@ const Header: FC = () => {
   };
 
   return (
-    <header className="bg-blue-500 text-white p-4 fixed top-0 left-0 right-0 z-10">
+    <header className="bg-blue-500 text-white p-4 z-10">
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <Image src="/logo.png" alt="our logo" width={90} height={90} />
-          <h1 className="text-5xl font-bold ml-9">LingoListen AI</h1>
+          <Image
+            src="/logo.png"
+            alt="LingoListen AI Logo"
+            width={90}
+            height={90}
+            className="lg:block hidden"
+          />
+          <h1 className="lg:text-5xl md:text-3xl font-bold lg:ml-9">
+            LingoListen AI
+          </h1>
         </div>
         <nav>
-          <ul className="flex space-x-9 mr-9">
-            <li className="hover:scale-110 transition duration-300 text-xl">
-              <Link
-                href="/LanguageSelection"
-                className="hover:scale-110 transition duration-300 text-xl"
-              >
-                Language Settings
-              </Link>
+          <ul className="flex flex-col sm:flex-row sm:space-x-6 lg:space-x-9 sm:mr-9">
+            <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
+              <Link href="/LanguageSelection">Language Settings</Link>
             </li>
-            <li className="hover:scale-110 transition duration-300 text-xl">
+            <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
               <Link href="/ManageSubscription">Manage Subscription</Link>
             </li>
-            <li className="hover:scale-110 transition duration-300 text-xl">
+            <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
               <button onClick={handleLogout}>Log Out</button>
             </li>
           </ul>

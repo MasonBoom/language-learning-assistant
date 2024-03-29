@@ -2,7 +2,7 @@ import React from "react";
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="p-4 md:p-8 mt-32">
+    <div className="p-4 md:p-8 mb-32">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold text-blue-500 mb-4">
           Privacy Policy
