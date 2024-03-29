@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
 import { ChatOpenAI } from "@langchain/openai";
+import MicToggle from "@/components/micToggle";
 
 type ConversationEntry = {
   from: string;
@@ -15,7 +16,6 @@ export default function Dashboard() {
   const { userData, isLoading, error } = useUserData();
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [hasUserSpoken, setHasUserSpoken] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const beginnerPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Imagine you are talking to someone who is just learning ${userData.learningLanguage}. Respond by asking them how their day was or how they are doing. Keep your sentences short, simple, and easy to understand. Please reply with only one or two sentences at a time unless the user shows signs of increased proficiency. You are to only reply to the user in ${userData.learningLanguage} no matter what. Here is the user's message to you, this will be the only part that you will respond to: `;
@@ -186,13 +186,18 @@ export default function Dashboard() {
         </p>
         {userData.difficulty &&
           difficultyTips[userData.difficulty as DifficultyLevel] && (
-            <p className="mb-9">
+            <p className="mb-4">
               {difficultyTips[userData.difficulty as DifficultyLevel]}
             </p>
           )}
-        <button onClick={handleRecordingToggle}>
-          {isRecording ? "Stop Recording" : "Start Recording"}
-        </button>
+        <div className="flex flex-col items-center">
+          <span className="mb-4">
+            Click to {isRecording ? "stop recording" : "start recording"}
+          </span>
+          <button onClick={handleRecordingToggle}>
+            <MicToggle />
+          </button>
+        </div>
       </section>
       <section className="flex justify-center p-8">
         {conversation.length > 0 ? (
