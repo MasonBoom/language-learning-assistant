@@ -8,8 +8,19 @@ connect();
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value || "";
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET!) as jwt.JwtPayload;
-    
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.TOKEN_SECRET!
+    ) as jwt.JwtPayload;
+
     const user = await User.findById(decoded.id);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -23,6 +34,13 @@ export async function GET(request: NextRequest) {
       difficulty: user.difficulty,
     });
   } catch (error: any) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json(
+        { error: "Invalid or expired token" },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

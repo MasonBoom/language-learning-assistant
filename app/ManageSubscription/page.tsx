@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-export const ManageSubscription: FC = () => {
+const ManageSubscription: FC = () => {
   return (
     <div>
       <h1>Manage Subscription</h1>
@@ -8,3 +8,5 @@ export const ManageSubscription: FC = () => {
     </div>
   )
 }
+
+export default ManageSubscription;

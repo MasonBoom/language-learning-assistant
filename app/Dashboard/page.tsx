@@ -188,35 +188,33 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="mt-32">
-      <main className="bg-white text-blue-500">
-        <section className="text-center p-8 z-10">
-          <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
-          <p className="mt-9 mb-3 text-xl">
-            Practice conversations in {userData.learningLanguage}.
-          </p>
-          {userData.difficulty &&
-            difficultyTips[userData.difficulty as DifficultyLevel] && (
-              <p className="mb-24">
-                {difficultyTips[userData.difficulty as DifficultyLevel]}
+    <main className="bg-white text-blue-500">
+      <section className="text-center p-8 z-10">
+        <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
+        <p className="mt-6 mb-3 text-xl">
+          Practice conversations in {userData.learningLanguage}.
+        </p>
+        {userData.difficulty &&
+          difficultyTips[userData.difficulty as DifficultyLevel] && (
+            <p className="mb-9">
+              {difficultyTips[userData.difficulty as DifficultyLevel]}
+            </p>
+          )}
+        <button onClick={handleRecordingToggle}>
+          {isRecording ? "Stop Recording" : "Start Recording"}
+        </button>
+      </section>
+      <section className="flex justify-center p-8">
+        {conversation.length > 0 ? (
+          <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 md:text-lg text-sm overflow-y-scroll lg:max-h-96 md:max-h-72 sm:max-h-48">
+            {conversation.map((entry, index) => (
+              <p key={index}>
+                {entry.from}: {entry.text}
               </p>
-            )}
-          <button onClick={handleRecordingToggle}>
-            {isRecording ? "Stop Recording" : "Start Recording"}
-          </button>
-        </section>
-        <section className="flex justify-center p-8">
-          {conversation.length > 0 ? (
-            <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 md:text-lg text-sm overflow-y-scroll lg:max-h-96 md:max-h-72 sm:max-h-48">
-              {conversation.map((entry, index) => (
-                <p key={index}>
-                  {entry.from}: {entry.text}
-                </p>
-              ))}
-            </div>
-          ) : null}
-        </section>
-      </main>
-    </div>
+            ))}
+          </div>
+        ) : null}
+      </section>
+    </main>
   );
 }

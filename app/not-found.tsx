@@ -3,7 +3,7 @@ import "@/styles/custom404.css";
 
 const Custom404: React.FC = () => {
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="w-screen h-screen flex items-center justify-center -mt-48">
       <div className="flex flex-col items-center justify-center mt-[5em]">
         <div className="antenna w-20 h-20 rounded-full border-2 border-black bg-blue-500 mb-[-6em] z-[-1]">
           <div className="antenna_shadow absolute bg-transparent w-[50px] h-[56px] ml-[1.68em] rounded-[45%] rotate-[140deg] border-4 border-transparent" />

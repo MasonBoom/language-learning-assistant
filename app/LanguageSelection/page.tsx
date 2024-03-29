@@ -131,7 +131,7 @@ const LanguageSelection = () => {
     "border-2 border-white bg-blue-100 text-blue-500 rounded p-2 w-56";
 
   return (
-    <div className="flex justify-center items-center w-full h-screen bg-blue-500">
+    <div className="flex justify-center items-center w-full h-screen sm:-mt-0 -mt-16 bg-blue-500">
       <div className="p-8 text-white xl:w-2/5 xl:mb-72">
         {userData.firstLogin ? (
           <h1 className="text-6xl font-bold mb-4">
