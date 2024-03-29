@@ -188,7 +188,7 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="bg-white text-blue-500">
+    <main className="bg-white text-blue-500 mb-32">
       <section className="text-center p-8 z-10">
         <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
         <p className="mt-6 mb-3 text-xl">
