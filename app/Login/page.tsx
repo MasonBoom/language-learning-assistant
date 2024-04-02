@@ -63,9 +63,9 @@ export default function Login() {
             >
               Log In
             </button>
-            <span className="text-sm text-blue-600 hover:underline">
+            <Link href="/ForgotPassword" className="text-sm text-blue-600 cursor-pointer hover:underline">
               Forgot Password?
-            </span>
+            </Link>
           </div>
           <div className="text-center mt-4">
             <Link
