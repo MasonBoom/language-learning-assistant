@@ -4,6 +4,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
+import Footer from "@/components/footer";
+import Header from "@/components/header";
 
 const LanguageSelection = () => {
   const router = useRouter();
@@ -131,6 +133,8 @@ const LanguageSelection = () => {
     "border-2 border-white bg-blue-100 text-blue-500 rounded p-2 w-56";
 
   return (
+    <>
+    {userData.firstLogin === false && <Header />}
     <div className="flex justify-center items-center w-full h-screen sm:-mt-0 -mt-16 bg-blue-500">
       <div className="p-8 text-white xl:w-2/5 xl:mb-72">
         {userData.firstLogin ? (
@@ -199,6 +203,8 @@ const LanguageSelection = () => {
         </form>
       </div>
     </div>
+    {userData.firstLogin === false && <Footer />}
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
 import { ChatOpenAI } from "@langchain/openai";
