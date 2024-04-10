@@ -14,18 +14,33 @@ export default function RootLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    const noHeaderFooterPages = ["/", "/Login", "/SignUp", "LanguageSelection", "/ForgotPassword"];
+    const checkPath = (path: string): boolean => {
+      const noHeaderFooterPages = [
+        "/",
+        "/Login",
+        "/SignUp",
+        "/LanguageSelection",
+        "/ForgotPassword",
+      ];
+      if (noHeaderFooterPages.includes(path)) {
+        return true;
+      }
+      if (path.startsWith("/ForgotPassword/")) {
+        return true;
+      }
+      return false;
+    };
 
-    setShowHeaderFooter(!noHeaderFooterPages.includes(pathname));
+    setShowHeaderFooter(!checkPath(pathname));
   }, [pathname]);
 
   return (
     <html lang="en">
       <body>
         <main className="flex flex-col">
-        {showHeaderFooter && <Header />}
-        <div>{children}</div>
-        {showHeaderFooter && <Footer />}
+          {showHeaderFooter && <Header />}
+          <div>{children}</div>
+          {showHeaderFooter && <Footer />}
         </main>
       </body>
     </html>

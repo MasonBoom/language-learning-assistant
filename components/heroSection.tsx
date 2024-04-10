@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   const buttonStyles =
-    "mt-1 bg-transparent border-2 border-white text-white px-7 py-2 rounded duration-300 hover:bg-white hover:border-none hover:text-blue-500";
+    "mt-1 bg-transparent border-2 border-white text-white px-7 py-2 rounded duration-300 hover:bg-white hover:text-blue-500";
 
   return (
     <section className="text-center p-8 bg-blue-500 text-white z-10">
