@@ -9,7 +9,6 @@ export default function SignUp() {
   const fieldStyles =
     "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
 
-  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({
     email: "",
     password: "",
@@ -25,6 +24,10 @@ export default function SignUp() {
         router.push("/Login");
       })
       .catch(() => console.log("Error: " + Error));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, email: e.target.value.toLowerCase() });
   };
 
   return (
@@ -51,7 +54,7 @@ export default function SignUp() {
             type="email"
             placeholder="Email"
             className={fieldStyles}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            onChange={handleEmailChange}
           />
           <label className="block mt-4">Password</label>
           <input

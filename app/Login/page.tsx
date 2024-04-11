@@ -26,6 +26,10 @@ export default function Login() {
     }
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, email: e.target.value.toLowerCase() });
+  };
+
   const fieldStyles =
     "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
 
@@ -44,7 +48,7 @@ export default function Login() {
               type="email"
               placeholder="Email"
               className={fieldStyles}
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              onChange={handleEmailChange}
             />
           </div>
           <div className="mt-4">
