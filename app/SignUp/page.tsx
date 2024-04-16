@@ -3,6 +3,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { AnimatedInput } from "@/components/animatedInput";
 
 export default function SignUp() {
   const router = useRouter();
@@ -36,32 +37,28 @@ export default function SignUp() {
       className="flex justify-center items-center h-screen bg-blue-500"
     >
       <div className="w-full max-w-xl sm:px-8 px-3 py-8 mt-4 text-left bg-white shadow-lg rounded-lg mb-12">
-        <h3 className="text-2xl font-bold text-center">Join LingoListen AI</h3>
+        <h3 className="text-2xl font-bold text-center text-blue-500">Join LingoListen AI</h3>
         <div className="mt-4">
-          <label className="block" htmlFor="Name">
-            First Name
-          </label>
-          <input
+          <AnimatedInput
             type="text"
-            placeholder="Name"
-            className={fieldStyles}
+            name="username"
+            value={user.username}
             onChange={(e) => setUser({ ...user, username: e.target.value })}
+            labelSpans={"First Name".split("")}
           />
-          <label className="block mt-4" htmlFor="Email">
-            Email
-          </label>
-          <input
+          <AnimatedInput
             type="email"
-            placeholder="Email"
-            className={fieldStyles}
+            name="email"
+            value={user.email}
             onChange={handleEmailChange}
+            labelSpans={"Email".split("")}
           />
-          <label className="block mt-4">Password</label>
-          <input
+          <AnimatedInput
             type="password"
-            placeholder="Password"
-            className={fieldStyles}
+            name="password"
+            value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
+            labelSpans={"Password".split("")}
           />
           <div className="flex items-baseline justify-between">
             <button className="sm:px-6 px-2 py-2 mt-4 text-sm sm:text-md text-white bg-blue-500 rounded-lg hover:bg-blue-400 hover:shadow-sky-900 hover:shadow-md duration-300">
