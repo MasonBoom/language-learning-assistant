@@ -1,0 +1,10 @@
+.form-control label span {
+  transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.form-control input:focus + label span,
+.form-control input:valid + label span {
+  color: rgb(37 99 235);
+  transform: translateY(-30px);
+  transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}

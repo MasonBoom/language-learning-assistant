@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { AnimatedInput } from "@/components/animatedInput";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -28,15 +29,12 @@ const ForgotPassword: React.FC = () => {
         </h3>
         <form onSubmit={handleSubmit} className="mt-4">
           <div>
-            <label className="block" htmlFor="Email">
-              Email
-            </label>
-            <input
+            <AnimatedInput
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={fieldStyles}
-              placeholder="Enter your email"
+              labelSpans={"Email".split("")}
             />
           </div>
           <button

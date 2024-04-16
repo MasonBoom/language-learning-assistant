@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { AnimatedInput } from "@/components/animatedInput";
 
 export default function Login() {
   const router = useRouter();
@@ -26,34 +27,33 @@ export default function Login() {
     }
   };
 
-  const fieldStyles =
-    "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, email: e.target.value.toLowerCase() });
+  };
 
   return (
     <main className="flex justify-center items-center h-screen bg-blue-500">
       <div className="w-full max-w-lg px-8 py-8 text-left bg-white shadow-lg rounded-lg mb-12">
-        <h3 className="text-2xl font-bold text-center">
+        <h3 className="text-2xl font-bold text-center text-blue-500">
           Login to LingoListen AI
         </h3>
         <form onSubmit={onLogin} className="mt-4">
           <div>
-            <label className="block" htmlFor="Email">
-              Email
-            </label>
-            <input
+            <AnimatedInput
               type="email"
-              placeholder="Email"
-              className={fieldStyles}
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              name="email"
+              value={user.email}
+              onChange={handleEmailChange}
+              labelSpans={"Email".split("")}
             />
           </div>
           <div className="mt-4">
-            <label className="block">Password</label>
-            <input
+            <AnimatedInput
               type="password"
-              placeholder="Password"
-              className={fieldStyles}
+              name="password"
+              value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
+              labelSpans={"Password".split("")}
             />
           </div>
           <div className="flex items-center justify-between mt-4">
@@ -63,7 +63,10 @@ export default function Login() {
             >
               Log In
             </button>
-            <Link href="/ForgotPassword" className="text-sm text-blue-600 cursor-pointer hover:underline">
+            <Link
+              href="/ForgotPassword"
+              className="text-sm text-blue-600 cursor-pointer hover:underline"
+            >
               Forgot Password?
             </Link>
           </div>

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { AnimatedInput } from "@/components/animatedInput";
 
 const ResetPassword = () => {
   const pathname = usePathname();
@@ -32,22 +33,18 @@ const ResetPassword = () => {
     }
   };
 
-  const fieldStyles =
-    "w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 duration-300";
-
   return (
     <main className="flex justify-center items-center h-screen bg-blue-500">
       <div className="w-full max-w-lg px-8 py-8 text-left bg-white shadow-lg rounded-lg mb-12">
         <h3 className="text-2xl font-bold text-center">Reset Your Password</h3>
         <form onSubmit={handleSubmit} className="mt-4">
           <div>
-            <label className="block">New Password</label>
-            <input
+            <AnimatedInput
               type="password"
+              name="newPassword"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password"
-              className={fieldStyles}
+              labelSpans={"New Password".split("")}
             />
           </div>
           <div className="flex items-center justify-between mt-4">
