@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
@@ -36,6 +37,14 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <Head>
+        <title>LingoListen AI</title>
+        <meta
+          name="description"
+          content="An AI language learning app built with Next.js"
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <body>
         <main className="flex flex-col">
           {showHeaderFooter && <Header />}

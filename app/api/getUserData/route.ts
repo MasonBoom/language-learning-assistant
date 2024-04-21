@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
       learningLanguage: user.learningLanguage,
       nativeLanguage: user.nativeLanguage,
       difficulty: user.difficulty,
+      subscription: user.subscription,
     });
   } catch (error: any) {
     if (error instanceof jwt.JsonWebTokenError) {
