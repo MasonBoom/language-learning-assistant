@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     user.subscription = {
       isActive: false,
       trialStart: now,
-      trialEnd: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      trialEnd: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
     };
     await user.save();
 

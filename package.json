@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^8.2.0",
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -24,7 +25,6 @@
     "nodemailer": "^6.9.13",
     "react": "^18",
     "react-dom": "^18",
-    "stripe": "^15.1.0",
     "tailwind-merge": "^1.14.0",
     "three": "^0.158.0"
   },
