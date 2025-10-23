@@ -82,7 +82,7 @@ const ManageSubscription: FC = () => {
   }
 
   return (
-    <PayPalScriptProvider options={{ clientId: "YOUR_CLIENT_ID" }}>
+    <PayPalScriptProvider options={{ clientId: process.env.PAYPAL_CLIENT_ID_SANDBOX! }}>
     <div>
       <h1>Manage Subscription</h1>
       <p>Manage your subscription here.</p>
