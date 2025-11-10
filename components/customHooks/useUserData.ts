@@ -6,10 +6,10 @@ import axios from "axios";
 const SAFE_PATHS = new Set<string>(["/", "/Login", "/SignUp", "/ForgotPassword"]);
 
 const useUserData = () => {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState({} as any);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const pathname = (usePathname() || "/").toLowerCase();
+  const pathname = (usePathname() || "/")
   const router = useRouter();
   const mounted = useRef(true);
 
