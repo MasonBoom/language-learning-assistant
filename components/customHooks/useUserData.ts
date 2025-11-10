@@ -6,10 +6,10 @@ import axios from "axios";
 const SAFE_PATHS = new Set<string>(["/", "/Login", "/SignUp", "/ForgotPassword"]);
 
 const useUserData = () => {
-  const [userData, setUserData] = useState({} as any);
+  const [userData, setUserData] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const pathname = (usePathname() || "/")
+  const pathname = usePathname();
   const router = useRouter();
   const mounted = useRef(true);
 
@@ -33,15 +33,18 @@ const useUserData = () => {
         const status = axios.isAxiosError(err) ? err.response?.status : undefined;
 
         if (status === 401) {
-          if (!SAFE_PATHS.has(pathname)) {
+          const current = pathname;
+
+          if (!SAFE_PATHS.has(current)) {
             setError("Unauthorized");
             router.replace(`/Login?next=${encodeURIComponent(pathname)}`);
           } else {
-            setError("Unauthorized access to restricted page");
+            setError("Not logged in");
           }
         } else {
           setError(err?.message || "An error occurred");
         }
+
         setIsLoading(false);
       }
     };
