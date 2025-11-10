@@ -9,15 +9,13 @@ const useUserData = () => {
   const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const pathname = usePathname();
+  const pathname = (usePathname() || "/").toLowerCase();
   const router = useRouter();
   const mounted = useRef(true);
 
   useEffect(() => {
     mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
+    return () => { mounted.current = false; };
   }, []);
 
   useEffect(() => {
@@ -35,9 +33,7 @@ const useUserData = () => {
         const status = axios.isAxiosError(err) ? err.response?.status : undefined;
 
         if (status === 401) {
-          const current = pathname.toLowerCase();
-
-          if (!SAFE_PATHS.has(current)) {
+          if (!SAFE_PATHS.has(pathname)) {
             setError("Unauthorized");
             router.replace(`/Login?next=${encodeURIComponent(pathname)}`);
           } else {
@@ -46,7 +42,6 @@ const useUserData = () => {
         } else {
           setError(err?.message || "An error occurred");
         }
-
         setIsLoading(false);
       }
     };
