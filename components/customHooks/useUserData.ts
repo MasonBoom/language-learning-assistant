@@ -1,44 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 
+const SAFE_PATHS = new Set<string>(["/", "/Login", "/SignUp", "/ForgotPassword"]);
+
 const useUserData = () => {
-  const [userData, setUserData] = useState({} as any);
+  const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const pathname = usePathname();
   const router = useRouter();
+  const mounted = useRef(true);
 
   useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!pathname) return;
+
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/getUserData");
-        setUserData(response.data);
+        const res = await axios.get("/api/getUserData", { withCredentials: true });
+        if (!mounted.current) return;
+        setUserData(res.data);
         setIsLoading(false);
-      } catch (error: any) {
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-          const nonRedirectPaths = [
-            "/",
-            "/Login",
-            "/SignUp",
-            "/ForgotPassword",
-          ];
+      } catch (err: any) {
+        if (!mounted.current) return;
 
-          if (!nonRedirectPaths.includes(pathname)) {
+        const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+
+        if (status === 401) {
+          const current = pathname.toLowerCase();
+
+          if (!SAFE_PATHS.has(current)) {
             setError("Unauthorized");
-            router.push("/Login");
+            router.replace(`/Login?next=${encodeURIComponent(pathname)}`);
           } else {
             setError("Unauthorized access to restricted page");
           }
         } else {
-          setError(error.message || "An error occurred");
+          setError(err?.message || "An error occurred");
         }
+
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [pathname]); 
+  }, [pathname, router]);
 
   return { userData, isLoading, error };
 };
