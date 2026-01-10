@@ -36,9 +36,11 @@ const Header: FC = () => {
             <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
               <Link href="/LanguageSelection">Language Settings</Link>
             </li>
+			{/* Added Manage Subscription link
             <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
               <Link href="/ManageSubscription">Manage Subscription</Link>
             </li>
+			*/}
             <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
               <button onClick={handleLogout}>Log Out</button>
             </li>
