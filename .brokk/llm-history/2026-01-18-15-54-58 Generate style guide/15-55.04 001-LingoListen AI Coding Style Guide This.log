@@ -1,0 +1,840 @@
+# Request to gemini-3-flash-preview:
+
+<message type=system>
+  You are an expert software engineer. Your task is to extract a concise coding style guide from the provided code examples.
+</message>
+
+<message type=user>
+  Based on these code examples, create a concise, clear coding style guide in Markdown format
+  that captures the conventions used in this codebase, particularly the ones that leverage new or uncommon features.
+  DO NOT repeat what are simply common best practices.
+  
+  <file path="components\customHooks\useUserData.ts">
+  "use client";
+  import { useState, useEffect, useRef } from "react";
+  import { usePathname, useRouter } from "next/navigation";
+  import axios from "axios";
+  
+  const SAFE_PATHS = new Set<string>(["/", "/Login", "/SignUp", "/ForgotPassword"]);
+  
+  const useUserData = () => {
+    const [userData, setUserData] = useState<any>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
+    const pathname = usePathname();
+    const router = useRouter();
+    const mounted = useRef(true);
+  
+    useEffect(() => {
+      mounted.current = true;
+      return () => { mounted.current = false; };
+    }, []);
+  
+    useEffect(() => {
+      if (!pathname) return;
+  
+      const fetchData = async () => {
+        try {
+          const res = await axios.get("/api/getUserData", { withCredentials: true });
+          if (!mounted.current) return;
+          setUserData(res.data);
+          setIsLoading(false);
+        } catch (err: any) {
+          if (!mounted.current) return;
+  
+          const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+  
+          if (status === 401) {
+            const current = pathname;
+  
+            if (!SAFE_PATHS.has(current)) {
+              setError("Unauthorized");
+              router.replace(`/Login?next=${encodeURIComponent(pathname)}`);
+            } else {
+              setError("Not logged in");
+            }
+          } else {
+            setError(err?.message || "An error occurred");
+          }
+  
+          setIsLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, [pathname, router]);
+  
+    return { userData, isLoading, error };
+  };
+  
+  export default useUserData;
+  
+  </file>
+  <file path="components\header.tsx">
+  "use client";
+  import React, { FC } from "react";
+  import { useRouter } from "next/navigation";
+  import Link from "next/link";
+  import Image from "next/image";
+  
+  const Header: FC = () => {
+    const router = useRouter();
+  
+    const handleLogout = async () => {
+      try {
+        await fetch("/api/logout", { method: "GET" });
+        router.push("/");
+      } catch (error) {
+        console.error("Logout failed:", error);
+      }
+    };
+  
+    return (
+      <header className="bg-blue-500 text-white p-4 z-10">
+        <div className="mx-auto flex justify-between items-center">
+          <div className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="LingoListen AI Logo"
+              width={90}
+              height={90}
+              className="lg:block hidden"
+            />
+            <h1 className="lg:text-5xl md:text-3xl font-bold lg:ml-9">
+              LingoListen AI
+            </h1>
+          </div>
+          <nav>
+            <ul className="flex flex-col sm:flex-row sm:space-x-6 lg:space-x-9 sm:mr-9">
+              <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
+                <Link href="/LanguageSelection">Language Settings</Link>
+              </li>
+  			{/* Added Manage Subscription link
+              <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
+                <Link href="/ManageSubscription">Manage Subscription</Link>
+              </li>
+  			*/}
+              <li className="hover:scale-110 transition duration-300 text-sm lg:text-xl">
+                <button onClick={handleLogout}>Log Out</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+    );
+  };
+  
+  export default Header;
+  
+  </file>
+  <file path="app\Dashboard\page.tsx">
+  "use client";
+  import React, { useState, useRef, useCallback } from "react";
+  import Loading from "@/components/loading";
+  import useUserData from "@/components/customHooks/useUserData";
+  import { ChatOpenAI } from "@langchain/openai";
+  import { SystemMessage, HumanMessage } from "@langchain/core/messages";
+  import MicToggle from "@/components/micToggle";
+  
+  type ConversationEntry = {
+    from: string;
+    text: string;
+  };
+  
+  type DifficultyLevel = "Beginner" | "Intermediate" | "Expert" | "Fluent";
+  
+  export default function Dashboard() {
+    const { userData, isLoading, error } = useUserData();
+    const [conversation, setConversation] = useState<ConversationEntry[]>([]);
+    const [isRecording, setIsRecording] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
+  
+    const beginnerPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Imagine you are talking to someone who is just learning ${userData.learningLanguage}. Respond by asking them how their day was or how they are doing. Keep your sentences short, simple, and easy to understand. Please reply with only one or two sentences at a time unless the user shows signs of increased proficiency. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
+    const intermediatePrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Engage in conversations about daily routines, hobbies, and interests with someone who has a basic understanding of ${userData.learningLanguage}. Use moderately complex sentences, encourage the user to expand their vocabulary. Reply with two to three sentences, gradually introducing new words and phrases. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
+    const expertPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Dive into abstract topics, current events, or cultural differences. Challenge the user with complex sentence structures and nuanced vocabulary. Engage in debates or thought-provoking discussions, responding in detailed paragraphs. Encourage expression of opinions and feelings, and refine idiomatic expressions and advanced language concepts. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
+    const fluentPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Discuss complex subjects like history, philosophy, or technology. Focus on the subtleties of ${userData.learningLanguage}, idiomatic expressions, and cultural references. Engage in long-form discussions, using sophisticated and intricate language structures. Provide detailed responses, mimicking the fluency of a native speaker, to help the user perfect their command of ${userData.learningLanguage}. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
+  
+    const prompts = {
+      Beginner: beginnerPrompt,
+      Intermediate: intermediatePrompt,
+      Expert: expertPrompt,
+      Fluent: fluentPrompt,
+    };
+  
+    const prompt = prompts[userData.difficulty as DifficultyLevel];
+  
+    const maxTokensByDifficulty = {
+      Beginner: 30,
+      Intermediate: 70,
+      Expert: 150,
+      Fluent: 350,
+    };
+    const setMaxTokens =
+      maxTokensByDifficulty[userData.difficulty as DifficultyLevel];
+  
+    const model = new ChatOpenAI({
+      openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
+      temperature: 0.5,
+      modelName: "gpt-4",
+      maxTokens: setMaxTokens,
+    });
+  
+    const difficultyTips: Record<DifficultyLevel, string> = {
+      Beginner:
+        "Tip: Start with basic greetings and everyday phrases. Practice simple sentences and common questions. For example, 'How are you?', 'What is your name?', or 'Where are you from?'.",
+      Intermediate:
+        "Tip: Engage in conversations about familiar topics like daily routines, hobbies, and interests. Try to expand your vocabulary and use more complex sentence structures. For instance, discuss your favorite movie or describe your typical day.",
+      Expert:
+        "Tip: Challenge yourself with abstract and nuanced topics. Engage in debates or discussions about current events, cultural differences, or professional topics. Try to express your opinions and feelings more intricately.",
+      Fluent:
+        "Tip: Immerse yourself in the subtleties and idiomatic expressions of the language. Engage in long-form discussions about complex subjects like history, philosophy, or technology. Focus on refining your accent and fluency to sound more like a native speaker.",
+    };
+  
+    const languageToISO: Record<string, string> = {
+      spanish: "es",
+      english: "en",
+      french: "fr",
+      german: "de",
+      italian: "it",
+      portuguese: "pt",
+      japanese: "ja",
+      chinese: "zh",
+      korean: "ko",
+      arabic: "ar",
+      hindi: "hi",
+      russian: "ru",
+      turkish: "tr",
+      dutch: "nl",
+      swedish: "sv",
+      norwegian: "no",
+      danish: "da",
+      polish: "pl",
+      greek: "el",
+    };
+  
+    const isoLanguage =
+      languageToISO[(userData.learningLanguage || "").toLowerCase()] || "";
+    const uid = () =>
+      (globalThis.crypto?.randomUUID?.() ||
+        Math.random().toString(36).slice(2)) as string;
+  
+    const handleRecordingToggle = async () => {
+      const rec = mediaRecorderRef.current;
+  
+      if (isRecording && rec) {
+        try {
+          if (rec.state === "recording") {
+            const stopped = new Promise<void>((resolve, reject) => {
+              const onStop = () => {
+                rec.removeEventListener("stop", onStop);
+                rec.removeEventListener("error", onError as EventListener);
+                resolve();
+              };
+              const onError = (ev: Event) => {
+                const err =
+                  (ev as any)?.error ??
+                  new Error("MediaRecorder error (no detail)");
+                rec.removeEventListener("stop", onStop);
+                rec.removeEventListener("error", onError as EventListener);
+                reject(err);
+              };
+              rec.addEventListener("stop", onStop, { once: true });
+              rec.addEventListener("error", onError as EventListener, {
+                once: true,
+              });
+            });
+  
+            try {
+              rec.requestData(); 
+            } catch {
+              console.warn("Failed to request data from MediaRecorder");
+            }
+            rec.stop();
+  
+            await stopped;
+          }
+        } finally {
+          streamRef.current?.getTracks().forEach((t) => t.stop());
+          streamRef.current = null;
+          mediaRecorderRef.current = null;
+          setIsRecording(false);
+        }
+        return;
+      }
+  
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      streamRef.current = stream;
+  
+      const preferredMime =
+        MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : MediaRecorder.isTypeSupported("audio/mp4")
+          ? "audio/mp4"
+          : "";
+  
+      const mediaRecorder = new MediaRecorder(
+        stream,
+        preferredMime ? { mimeType: preferredMime } : undefined
+      );
+      mediaRecorderRef.current = mediaRecorder;
+  
+      let audioChunks: BlobPart[] = [];
+      let chunkCount = 0;
+  
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunks.push(event.data);
+          chunkCount++;
+        }
+      };
+  
+      mediaRecorder.onstop = async () => {
+        try {
+          const type =
+            mediaRecorder.mimeType || preferredMime || "audio/webm;codecs=opus";
+          const audioBlob = new Blob(audioChunks, { type });
+          const size = audioBlob.size;
+          const ext = type.includes("mp4") ? "mp4" : "webm";
+          audioChunks = []; 
+  
+          console.log(
+            "[Recorder] mime:",
+            type,
+            "chunks:",
+            chunkCount,
+            "bytes:",
+            size
+          );
+          if (!size || size < 1024) {
+            console.warn(
+              "Audio blob is very small; likely silence or recording did not start correctly."
+            );
+          }
+  
+          await transcribeAudio(audioBlob, ext);
+        } catch (e) {
+          console.error("onstop processing failed:", e);
+        }
+      };
+  
+      mediaRecorder.start(250);
+      setIsRecording(true);
+    };
+  
+    const transcribeAudio = async (audioBlob: Blob, ext: "webm" | "mp4") => {
+      const formData = new FormData();
+      const filename = `audio-${uid()}.${ext}`;
+      const file = new File([audioBlob], filename, { type: audioBlob.type });
+      formData.append("file", file);
+      formData.append("model", "whisper-1");
+      if (isoLanguage) formData.append("language", isoLanguage);
+      formData.append("response_format", "json");
+  
+      try {
+        const response = await fetch(
+          `https://api.openai.com/v1/audio/transcriptions?ts=${Date.now()}`,
+          {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
+            },
+            body: formData,
+          }
+        );
+  
+        if (!response.ok) {
+          console.error("Transcription status:", response.status);
+          console.error("Transcription body:", await response.text());
+          throw new Error(`Transcription failed: ${response.statusText}`);
+        }
+  
+        const data = await response.json();
+        const text = (data?.text ?? "").toString().trim();
+        console.log("[Whisper] text:", text);
+        handleChatResponse(text || "[no speech detected]");
+      } catch (err) {
+        console.error("Error transcribing audio:", err);
+      }
+    };
+  
+    const convertTextToSpeech = async (text: string) => {
+      try {
+        const response = await fetch("https://api.openai.com/v1/audio/speech", {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "tts-1-hd",
+            voice: "alloy",
+            input: text,
+          }),
+        });
+  
+        if (!response.ok) {
+          console.error("TTS status:", response.status, await response.text());
+          throw new Error(`TTS failed: ${response.statusText}`);
+        }
+  
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        playAudio(url);
+      } catch (error) {
+        console.error("Error with OpenAI TTS API:", error);
+      }
+    };
+  
+    const playAudio = (audioUrl: string) => {
+      const audio = new Audio(audioUrl);
+      audio.playbackRate = 0.7;
+      audio.play();
+    };
+  
+    const handleChatResponse = useCallback(
+      async (userInput: string) => {
+        try {
+          const sys = new SystemMessage(prompt);
+          const human = new HumanMessage(userInput);
+          const message = await model.invoke([sys, human]);
+          const botReply = (message.content as string) ?? "";
+  
+          setConversation((prev) => [
+            ...prev,
+            { from: userData.username, text: userInput },
+            { from: "LingoListen AI", text: botReply },
+          ]);
+  
+          await convertTextToSpeech(botReply);
+        } catch (error) {
+          console.error("Error with OpenAI Chat API:", error);
+        }
+      },
+      [model, prompt, userData.username]
+    );
+  
+    if (isLoading) {
+      return <Loading />;
+    }
+  
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+  
+    return (
+      <main className="bg-white text-blue-500 mb-32">
+        <section className="text-center p-8 z-10">
+          <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
+          <p className="mt-6 mb-3 text-xl">
+            Practice conversations in {userData.learningLanguage}.
+          </p>
+          {userData.difficulty &&
+            difficultyTips[userData.difficulty as DifficultyLevel] && (
+              <p className="mb-4">
+                {difficultyTips[userData.difficulty as DifficultyLevel]}
+              </p>
+            )}
+          <div className="flex flex-col items-center">
+            <span className="mb-4">
+              Click to {isRecording ? "stop recording" : "start recording"}
+            </span>
+            <button onClick={handleRecordingToggle}>
+              <MicToggle />
+            </button>
+          </div>
+        </section>
+        <section className="flex justify-center p-8">
+          {conversation.length > 0 ? (
+            <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 md:text-lg text-sm overflow-y-scroll lg:max-h-96 md:max-h-72 sm:max-h-48">
+              {conversation.map((entry, index) => (
+                <p key={index}>
+                  {entry.from}: {entry.text}
+                </p>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      </main>
+    );
+  }
+  
+  </file>
+  <file path="app\LanguageSelection\page.tsx">
+  "use client";
+  import React, { useState, useEffect, FormEvent } from "react";
+  import axios from "axios";
+  import { useRouter } from "next/navigation";
+  import Loading from "@/components/loading";
+  import useUserData from "@/components/customHooks/useUserData";
+  
+  const LanguageSelection = () => {
+    const router = useRouter();
+    const { userData, isLoading, error } = useUserData();
+    const [nativeLanguage, setNativeLanguage] = useState(userData.nativeLanguage);
+    const [learningLanguage, setLearningLanguage] = useState(
+      userData.learningLanguage
+    );
+    const [difficulty, setDifficulty] = useState(userData.difficulty);
+  
+    useEffect(() => {
+      if (userData && !isLoading && !error) {
+        setNativeLanguage(userData.nativeLanguage);
+        setLearningLanguage(userData.learningLanguage);
+        setDifficulty(userData.difficulty);
+      }
+    }, [userData, isLoading, error]);
+  
+    if (isLoading) {
+      return <Loading />;
+    }
+  
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+  
+    const difficultyLevels = ["Beginner", "Intermediate", "Expert", "Fluent"];
+  
+    const allLanguages: string[] = [
+      "Spanish",
+      "English",
+      "French",
+      "German",
+      "Italian",
+      "Portuguese",
+      "Japanese",
+      "Chinese (Mandarin)",
+      "Korean",
+      "Arabic",
+      "Hindi",
+      "Russian",
+      "Turkish",
+      "Dutch",
+      "Swedish",
+      "Norwegian",
+      "Danish",
+      "Polish",
+      "Greek",
+    ];
+  
+    const handleLanguageChange = (language: string) => {
+      setLearningLanguage(language);
+    };
+  
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (nativeLanguage === learningLanguage) {
+        alert("Native language and learning language must be different.");
+        return;
+      }
+      try {
+        await axios.post("/api/languagePreferences", {
+          nativeLanguage,
+          learningLanguage,
+          difficulty,
+          firstLogin: false,
+        });
+        router.push("/Dashboard");
+      } catch (error) {
+        console.error("Error updating language preferences:", error);
+      }
+    };
+  
+    const buttonStyles =
+      "mt-1 bg-white border-2 border-white text-blue-500 px-7 py-2 rounded duration-300 hover:bg-transparent hover:text-white";
+    const selectStyles =
+      "border-2 border-white bg-blue-100 text-blue-500 rounded p-2 w-56";
+  
+    return (
+      <div className="flex justify-center items-center w-full h-screen sm:-mt-0 -mt-16 bg-blue-500">
+        <div className="p-8 text-white xl:w-2/5 xl:mb-72">
+          {userData.firstLogin ? (
+            <h1 className="text-6xl font-bold mb-4">
+              Welcome, {userData.username}!
+            </h1>
+          ) : null}
+          <h2 className="mb-6 text-xl">
+            Select your native language and the language you want to learn{" "}
+            {userData.firstLogin ? "(you can change your selection later)" : null}
+          </h2>
+          <form onSubmit={handleSubmit} className="text-left">
+            <div className="mb-4">
+              <label className="block mb-2">Native Language:</label>
+              <select
+                className={selectStyles}
+                value={nativeLanguage}
+                onChange={(e) => setNativeLanguage(e.target.value)}
+              >
+                {allLanguages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Language to Learn:</label>
+              <select
+                className={selectStyles}
+                value={learningLanguage}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+              >
+                {allLanguages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Difficulty Level:</label>
+              <select
+                className={selectStyles}
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                {difficultyLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={buttonStyles}>
+              Save Preferences
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  };
+  
+  export default LanguageSelection;
+  
+  </file>
+  <file path="app\ManageSubscription\page.tsx">
+  "use client"
+  import React, { FC, useState, useCallback } from 'react';
+  import axios from 'axios';
+  import useUserData from "@/components/customHooks/useUserData";
+  import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+  
+  interface SubscriptionState {
+    hasTrial: boolean;
+    trialStart: Date | null;
+    isSubscribed: boolean;
+    trialEnd?: Date | null;
+  }
+  
+  const ManageSubscription: FC = () => {
+    const { userData, isLoading, error } = useUserData();
+    const [subscription, setSubscription] = useState<SubscriptionState>({
+      hasTrial: false,
+      trialStart: null,
+      isSubscribed: false,
+    });
+    const [loading, setLoading] = useState(false);
+    const [cardComplete, setCardComplete] = useState(false);
+  
+    const startTrial = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post('/api/subscription/startTrial', {}, {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token'), 
+          }
+        });
+        if (response.data.success) {
+          setSubscription(prevState => ({
+            ...prevState,
+            hasTrial: true,
+            trialStart: new Date(response.data.trialEnd - 7 * 24 * 60 * 60 * 1000),
+            isSubscribed: false,
+          }));
+        }
+      } catch (error: any) {
+        console.error("Failed to start trial:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const cancelSubscription = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post('/api/subscription/cancel');
+        if (response.data.success) {
+          setSubscription({
+            ...subscription,
+            isSubscribed: false,
+          });
+        }
+      } catch (error: any) {
+        console.error("Failed to cancel subscription:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const handleStartTrial = useCallback(() => {
+      startTrial();
+    }, []);
+  
+    const handleCancelSubscription = useCallback(() => {
+      cancelSubscription();
+    }, []);
+  
+    const calculateRemainingTrialDays = useCallback(() => {
+      if (!userData || !userData.subscription?.trialStart) return 0;
+      const trialEnd = new Date(new Date(userData.subscription.trialStart).getTime() + 7 * 24 * 60 * 60 * 1000);
+      const today = new Date();
+      const remaining = (trialEnd.getTime() - today.getTime()) / (1000 * 3600 * 24);
+      return Math.max(0, Math.ceil(remaining));
+    }, [userData]);
+  
+    if (loading) {
+      return <p>Loading...</p>;
+    }
+  
+    return (
+      <PayPalScriptProvider options={{ clientId: process.env.PAYPAL_CLIENT_ID_SANDBOX! }}>
+      <div>
+        <h1>Manage Subscription</h1>
+        <p>Manage your subscription here.</p>
+        {error && <p className="text-red-500">{error}</p>}
+        {!subscription.isSubscribed && !subscription.hasTrial && (
+          <PayPalButtons 
+            createSubscription={(data, actions) => {
+              return actions.subscription.create({
+                plan_id: "YOUR_PLAN_ID",
+              });
+            }}
+            onApprove={(data, actions) => {
+              return new Promise<void>((resolve, reject) => {
+                // Perform your operations here. For example:
+                actions?.subscription?.get().then((details) => {-
+                  console.log("Subscription details:", details);
+                  // Update state or perform further actions after subscription approval
+                  resolve();
+                }).catch(error => {
+                  console.error("Error during subscription get:", error);
+                  reject();
+                });
+              });
+            }}
+          />
+        )}
+        {subscription.hasTrial && (
+          <p>Trial remaining days: {calculateRemainingTrialDays()}</p>
+        )}
+        {subscription.isSubscribed ? (
+          <button onClick={handleCancelSubscription}>Cancel Subscription</button>
+        ) : (
+          <p>You are not currently subscribed.</p>
+        )}
+      </div>
+      </PayPalScriptProvider>
+    );
+  };
+  
+  export default ManageSubscription;
+  
+  </file>
+  <file path="tsconfig.json">
+  {
+    "compilerOptions": {
+      "target": "es5",
+      "typeRoots": ["./types", "./node_modules/@types"],
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "allowJs": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "noEmit": true,
+      "esModuleInterop": true,
+      "module": "esnext",
+      "moduleResolution": "bundler",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "jsx": "preserve",
+      "incremental": true,
+      "plugins": [
+        {
+          "name": "next"
+        }
+      ],
+      "paths": {
+        "@/*": ["./*"],
+        "auth": ["./auth"]
+      }
+    },
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/db.ts", "helpers/decodeJWT.js", "./types/*.d.ts", "app/ForgotPassword/[resetToken]"],
+    "exclude": ["node_modules"]
+  }
+  
+  </file>
+  <file path="types\css.d.ts">
+  // Type definitions for CSS imports
+  declare module "*.css" {
+    const content: { [className: string]: string };
+    export default content;
+  }
+  
+  // For side-effect CSS imports (like globals.css)
+  declare module "*.css" {
+    const content: any;
+    export = content;
+  }
+  
+  </file>
+</message>
+
+# Response:
+
+ChatResponse { aiMessage = AiMessage { reasoningContent = "" text = "# LingoListen AI Coding Style Guide
+
+This guide outlines the specific patterns and conventions used in the LingoListen AI codebase.
+
+## 1. Next.js & Client-Side Logic
+- **Directive Usage**: Always include `"use client";` at the top of files that utilize hooks (`useState`, `useEffect`), browser APIs (MediaRecorder, Speech), or navigation (`useRouter`, `usePathname`).
+- **Data Fetching**: Prefer custom hooks (e.g., `useUserData`) to centralize authentication state and user profile data across the dashboard and settings pages.
+- **Route Protection**: Use a `SAFE_PATHS` constant (a `Set<string>`) within data hooks to determine if an unauthorized user should be redirected to `/Login?next=...`.
+
+## 2. Component Patterns
+- **Functional Components**: Use `const Component: FC = () => ...` for standard components and `export default function Page()` for Next.js app directory pages.
+- **Loading/Error States**: Implement early returns for `isLoading` and `error` states returned by hooks before rendering the main UI logic.
+- **Tailwind Layouts**: Use a mobile-first approach with Tailwind. For full-screen layouts, use `h-screen` with negative margins (e.g., `-mt-16`) to account for navigation headers.
+
+## 3. TypeScript & Type Safety
+- **Cast and Assert**: Use `as` for strict mapping of string values to specific union types (e.g., `userData.difficulty as DifficultyLevel`).
+- **Index Signatures**: Use `Record<K, V>` for mapping dynamic data, such as language ISO codes or difficulty-based UI tips.
+- **Global Types**: Define module declarations for non-JS assets (like CSS modules) in a `types/` directory to satisfy the compiler.
+
+## 4. State Management & Hooks
+- **Mounted Refs**: In async `useEffect` calls, use a `mounted` ref (`useRef(true)`) to prevent state updates on unmounted components and avoid memory leaks.
+- **State Initialization**: When initializing state from potentially undefined hook data, use `useEffect` to sync local state once the data is available.
+- **Callback Memoization**: Wrap intensive logic or functions passed to external providers (like PayPal) in `useCallback`.
+
+## 5. Media & AI Integration
+- **Audio Handling**:
+    - Request high-quality audio using `echoCancellation`, `noiseSuppression`, and `autoGainControl`.
+    - Check for browser support of `audio/webm;codecs=opus` before falling back to `audio/mp4`.
+    - Use `MediaRecorder.requestData()` before `stop()` to ensure all audio chunks are captured.
+- **API Orchestration**:
+    - Centralize OpenAI model configuration (e.g., `temperature`, `maxTokens`) based on user-selected difficulty levels.
+    - Use `FormData` to append `File` objects for Whisper transcriptions.
+    - Append timestamps (`?ts=${Date.now()}`) to API URLs to bypass potential caching on POST requests if required.
+
+## 6. External Integrations
+- **PayPal**: Wrap subscription-related UI in `PayPalScriptProvider`. Use `Promise` wrappers inside `onApprove` to handle complex asynchronous validation.
+- **Axios**: Prefer `axios` for API interactions, utilizing `withCredentials: true` for session-based auth and `axios.isAxiosError(err)` for type-safe error handling.
+
+## 7. Utilities
+- **UUID Generation**: Use `globalThis.crypto?.randomUUID()` as a primary method for generating unique identifiers, with a `Math.random` fallback for legacy environments." toolExecutionRequests = [] }, metadata = OpenAiChatResponseMetadata{id='pEhtafClENX5jrEPkIHy4QI', modelName='gemini-3-flash-preview', tokenUsage=OpenAiTokenUsage { inputTokenCount = 7771, inputTokensDetails = OpenAiTokenUsage.InputTokensDetails { cachedTokens = null }, outputTokenCount = 789, outputTokensDetails = OpenAiTokenUsage.OutputTokensDetails { reasoningTokens = null }, totalTokenCount = 8560 }, finishReason=STOP, created=1768769705, serviceTier='null', systemFingerprint='null'} }
