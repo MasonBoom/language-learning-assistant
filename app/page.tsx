@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import HeroSection from "../components/heroSection";
 import ThreeScene from "../components/globe";
 import useUserData from "@/components/customHooks/useUserData";
@@ -6,12 +7,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Home() {
-  const { userData } = useUserData();
+  const { userData, isLoading } = useUserData();
   const router = useRouter();
 
-  if (userData) {
-    router.push("/Dashboard");
-  }
+  useEffect(() => {
+    if (!isLoading && userData?.email) {
+      router.replace("/Dashboard");
+    }
+  }, [isLoading, userData, router]);
 
   return (
     <main>
