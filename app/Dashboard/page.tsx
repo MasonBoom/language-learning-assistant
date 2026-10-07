@@ -35,10 +35,10 @@ export default function Dashboard() {
   const prompt = prompts[userData.difficulty as DifficultyLevel];
 
   const maxTokensByDifficulty = {
-    Beginner: 30,
-    Intermediate: 70,
+    Beginner: 35,
+    Intermediate: 75,
     Expert: 150,
-    Fluent: 350,
+    Fluent: 500,
   };
   const setMaxTokens =
     maxTokensByDifficulty[userData.difficulty as DifficultyLevel];
