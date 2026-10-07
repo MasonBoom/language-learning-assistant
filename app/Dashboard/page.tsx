@@ -46,7 +46,7 @@ export default function Dashboard() {
   const model = new ChatOpenAI({
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     temperature: 0.5,
-    modelName: "gpt-4",
+    modelName: "gpt-5.4-mini",
     maxTokens: setMaxTokens,
   });
 
