@@ -1,337 +1,163 @@
 "use client";
-import React, { useState, useRef, useCallback } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import useUserData from "@/components/customHooks/useUserData";
-import { ChatOpenAI } from "@langchain/openai";
-import { SystemMessage, HumanMessage } from "@langchain/core/messages";
+import useAudioRecorder from "@/components/customHooks/useAudioRecorder";
 import MicToggle from "@/components/micToggle";
 
-type ConversationEntry = {
-  from: string;
-  text: string;
+type ConversationEntry = { from: string; text: string };
+type DifficultyLevel = "Beginner" | "Intermediate" | "Expert" | "Fluent";
+
+const difficultyTips: Record<DifficultyLevel, string> = {
+  Beginner: "Tip: Start with basic greetings and everyday phrases. Practice simple sentences and common questions. For example, 'How are you?', 'What is your name?', or 'Where are you from?'.",
+  Intermediate: "Tip: Engage in conversations about familiar topics like daily routines, hobbies, and interests. Try to expand your vocabulary and use more complex sentence structures. For instance, discuss your favorite movie or describe your typical day.",
+  Expert: "Tip: Challenge yourself with abstract and nuanced topics. Engage in debates or discussions about current events, cultural differences, or professional topics. Try to express your opinions and feelings more intricately.",
+  Fluent: "Tip: Immerse yourself in the subtleties and idiomatic expressions of the language. Engage in long-form discussions about complex subjects like history, philosophy, or technology. Focus on refining your accent and fluency to sound more like a native speaker.",
 };
 
-type DifficultyLevel = "Beginner" | "Intermediate" | "Expert" | "Fluent";
+const languageToISO: Record<string, string> = {
+  spanish: "es", english: "en", french: "fr", german: "de", italian: "it",
+  portuguese: "pt", japanese: "ja", chinese: "zh", "chinese (mandarin)": "zh",
+  korean: "ko", arabic: "ar", hindi: "hi", russian: "ru", turkish: "tr",
+  dutch: "nl", swedish: "sv", norwegian: "no", danish: "da", polish: "pl", greek: "el",
+};
+
+async function checkResponse(response: Response, stage: string) {
+  if (response.ok) return;
+  const data = await response.json().catch(() => null);
+  throw new Error(
+    typeof data?.error === "string" ? data.error : `${stage} failed (${response.status}). Please try again.`
+  );
+}
+
+function audioExtension(type: string) {
+  if (type.includes("webm")) return "webm";
+  if (type.includes("mp4")) return "mp4";
+  if (type.includes("ogg")) return "ogg";
+  if (type.includes("wav")) return "wav";
+  throw new Error("This browser recorded an unsupported audio format. Please try another browser.");
+}
 
 export default function Dashboard() {
   const { userData, isLoading, error } = useUserData();
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [processingMessage, setProcessingMessage] = useState("");
+  const [replyAudioUrl, setReplyAudioUrl] = useState<string | null>(null);
 
-  const beginnerPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Imagine you are talking to someone who is just learning ${userData.learningLanguage}. Respond by asking them how their day was or how they are doing. Keep your sentences short, simple, and easy to understand. Please reply with only one or two sentences at a time unless the user shows signs of increased proficiency. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
-  const intermediatePrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Engage in conversations about daily routines, hobbies, and interests with someone who has a basic understanding of ${userData.learningLanguage}. Use moderately complex sentences, encourage the user to expand their vocabulary. Reply with two to three sentences, gradually introducing new words and phrases. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
-  const expertPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Dive into abstract topics, current events, or cultural differences. Challenge the user with complex sentence structures and nuanced vocabulary. Engage in debates or thought-provoking discussions, responding in detailed paragraphs. Encourage expression of opinions and feelings, and refine idiomatic expressions and advanced language concepts. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
-  const fluentPrompt = `Your name is no longer ChatGPT or OpenAI. Your name is LingoListen AI. You are a language learning assistant. Discuss complex subjects like history, philosophy, or technology. Focus on the subtleties of ${userData.learningLanguage}, idiomatic expressions, and cultural references. Engage in long-form discussions, using sophisticated and intricate language structures. Provide detailed responses, mimicking the fluency of a native speaker, to help the user perfect their command of ${userData.learningLanguage}. You are to only reply to the user in ${userData.learningLanguage} no matter what.`;
+  useEffect(() => {
+    return () => {
+      if (replyAudioUrl) URL.revokeObjectURL(replyAudioUrl);
+    };
+  }, [replyAudioUrl]);
 
-  const prompts = {
-    Beginner: beginnerPrompt,
-    Intermediate: intermediatePrompt,
-    Expert: expertPrompt,
-    Fluent: fluentPrompt,
-  };
-
-  const prompt = prompts[userData.difficulty as DifficultyLevel];
-
-  const maxTokensByDifficulty = {
-    Beginner: 35,
-    Intermediate: 75,
-    Expert: 150,
-    Fluent: 500,
-  };
-  const setMaxTokens =
-    maxTokensByDifficulty[userData.difficulty as DifficultyLevel];
-
-  const model = new ChatOpenAI({
-    openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
-    temperature: 0.5,
-    modelName: "gpt-5.4-mini",
-    maxTokens: setMaxTokens,
-  });
-
-  const difficultyTips: Record<DifficultyLevel, string> = {
-    Beginner:
-      "Tip: Start with basic greetings and everyday phrases. Practice simple sentences and common questions. For example, 'How are you?', 'What is your name?', or 'Where are you from?'.",
-    Intermediate:
-      "Tip: Engage in conversations about familiar topics like daily routines, hobbies, and interests. Try to expand your vocabulary and use more complex sentence structures. For instance, discuss your favorite movie or describe your typical day.",
-    Expert:
-      "Tip: Challenge yourself with abstract and nuanced topics. Engage in debates or discussions about current events, cultural differences, or professional topics. Try to express your opinions and feelings more intricately.",
-    Fluent:
-      "Tip: Immerse yourself in the subtleties and idiomatic expressions of the language. Engage in long-form discussions about complex subjects like history, philosophy, or technology. Focus on refining your accent and fluency to sound more like a native speaker.",
-  };
-
-  const languageToISO: Record<string, string> = {
-    spanish: "es",
-    english: "en",
-    french: "fr",
-    german: "de",
-    italian: "it",
-    portuguese: "pt",
-    japanese: "ja",
-    chinese: "zh",
-    korean: "ko",
-    arabic: "ar",
-    hindi: "hi",
-    russian: "ru",
-    turkish: "tr",
-    dutch: "nl",
-    swedish: "sv",
-    norwegian: "no",
-    danish: "da",
-    polish: "pl",
-    greek: "el",
-  };
-
-  const isoLanguage =
-    languageToISO[(userData.learningLanguage || "").toLowerCase()] || "";
-  const uid = () =>
-    (globalThis.crypto?.randomUUID?.() ||
-      Math.random().toString(36).slice(2)) as string;
-
-  const handleRecordingToggle = async () => {
-    const rec = mediaRecorderRef.current;
-
-    if (isRecording && rec) {
-      try {
-        if (rec.state === "recording") {
-          const stopped = new Promise<void>((resolve, reject) => {
-            const onStop = () => {
-              rec.removeEventListener("stop", onStop);
-              rec.removeEventListener("error", onError as EventListener);
-              resolve();
-            };
-            const onError = (ev: Event) => {
-              const err =
-                (ev as any)?.error ??
-                new Error("MediaRecorder error (no detail)");
-              rec.removeEventListener("stop", onStop);
-              rec.removeEventListener("error", onError as EventListener);
-              reject(err);
-            };
-            rec.addEventListener("stop", onStop, { once: true });
-            rec.addEventListener("error", onError as EventListener, {
-              once: true,
-            });
-          });
-
-          try {
-            rec.requestData(); 
-          } catch {
-            console.warn("Failed to request data from MediaRecorder");
-          }
-          rec.stop();
-
-          await stopped;
-        }
-      } finally {
-        streamRef.current?.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-        mediaRecorderRef.current = null;
-        setIsRecording(false);
-      }
-      return;
+  const processRecording = useCallback(async (audio: Blob, signal: AbortSignal) => {
+    if (audio.size > 25 * 1024 * 1024) {
+      throw new Error("The recording is too large to transcribe. Please record a shorter message (under 25 MB).");
     }
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
-    streamRef.current = stream;
-
-    const preferredMime =
-      MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : MediaRecorder.isTypeSupported("audio/mp4")
-        ? "audio/mp4"
-        : "";
-
-    const mediaRecorder = new MediaRecorder(
-      stream,
-      preferredMime ? { mimeType: preferredMime } : undefined
-    );
-    mediaRecorderRef.current = mediaRecorder;
-
-    let audioChunks: BlobPart[] = [];
-    let chunkCount = 0;
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data && event.data.size > 0) {
-        audioChunks.push(event.data);
-        chunkCount++;
-      }
-    };
-
-    mediaRecorder.onstop = async () => {
-      try {
-        const type =
-          mediaRecorder.mimeType || preferredMime || "audio/webm;codecs=opus";
-        const audioBlob = new Blob(audioChunks, { type });
-        const size = audioBlob.size;
-        const ext = type.includes("mp4") ? "mp4" : "webm";
-        audioChunks = []; 
-
-        console.log(
-          "[Recorder] mime:",
-          type,
-          "chunks:",
-          chunkCount,
-          "bytes:",
-          size
-        );
-        if (!size || size < 1024) {
-          console.warn(
-            "Audio blob is very small; likely silence or recording did not start correctly."
-          );
-        }
-
-        await transcribeAudio(audioBlob, ext);
-      } catch (e) {
-        console.error("onstop processing failed:", e);
-      }
-    };
-
-    mediaRecorder.start(250);
-    setIsRecording(true);
-  };
-
-  const transcribeAudio = async (audioBlob: Blob, ext: "webm" | "mp4") => {
     const formData = new FormData();
-    const filename = `audio-${uid()}.${ext}`;
-    const file = new File([audioBlob], filename, { type: audioBlob.type });
-    formData.append("file", file);
-    formData.append("model", "whisper-1");
+    formData.append("file", audio, `recording.${audioExtension(audio.type)}`);
+    const isoLanguage = languageToISO[(userData.learningLanguage || "").toLowerCase()];
     if (isoLanguage) formData.append("language", isoLanguage);
-    formData.append("response_format", "json");
 
-    try {
-      const response = await fetch(
-        `https://api.openai.com/v1/audio/transcriptions?ts=${Date.now()}`,
-        {
-          method: "POST",
-          cache: "no-store",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
-          },
-          body: formData,
-        }
-      );
+    setProcessingMessage("Transcribing your recording…");
+    const transcriptResponse = await fetch("/api/audio/transcribe", {
+      method: "POST", body: formData, signal,
+    });
+    await checkResponse(transcriptResponse, "Transcription");
+    const transcript = await transcriptResponse.json();
+    const text = typeof transcript.text === "string" ? transcript.text.trim() : "";
+    if (!text) throw new Error("No speech was detected. Check the recording preview and try speaking again.");
+    if (signal.aborted) return;
+    setConversation((previous) => [...previous, { from: userData.username, text }]);
 
-      if (!response.ok) {
-        console.error("Transcription status:", response.status);
-        console.error("Transcription body:", await response.text());
-        throw new Error(`Transcription failed: ${response.statusText}`);
-      }
+    setProcessingMessage("Preparing your reply…");
+    const chatResponse = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language: userData.learningLanguage, difficulty: userData.difficulty }),
+      signal,
+    });
+    await checkResponse(chatResponse, "Conversation");
+    const chat = await chatResponse.json();
+    const reply = typeof chat.text === "string" ? chat.text.trim() : "";
+    if (!reply) throw new Error("The assistant returned an empty reply. Please try again.");
+    if (signal.aborted) return;
+    setConversation((previous) => [...previous, { from: "LingoListen AI", text: reply }]);
 
-      const data = await response.json();
-      const text = (data?.text ?? "").toString().trim();
-      console.log("[Whisper] text:", text);
-      handleChatResponse(text || "[no speech detected]");
-    } catch (err) {
-      console.error("Error transcribing audio:", err);
-    }
-  };
+    setProcessingMessage("Preparing the voice reply…");
+    const speechResponse = await fetch("/api/audio/speech", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: reply }),
+      signal,
+    });
+    await checkResponse(speechResponse, "Voice reply");
+    const speech = await speechResponse.blob();
+    if (!speech.size) throw new Error("The voice reply was empty. Your text reply is available below.");
+    if (!signal.aborted) setReplyAudioUrl(URL.createObjectURL(speech));
+  }, [userData.learningLanguage, userData.difficulty, userData.username]);
 
-  const convertTextToSpeech = async (text: string) => {
-    try {
-      const response = await fetch("https://api.openai.com/v1/audio/speech", {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "tts-1-hd",
-          voice: "alloy",
-          input: text,
-        }),
-      });
+  const { status, error: recordingError, recordingUrl, toggleRecording } = useAudioRecorder(processRecording);
+  const isRecording = status === "recording";
+  const isBusy = status !== "idle" && !isRecording;
+  const statusText = {
+    idle: "Click to start recording",
+    requesting: "Waiting for microphone permission…",
+    recording: "Recording… Click to stop recording",
+    stopping: "Finishing your recording…",
+    processing: processingMessage || "Processing your recording…",
+  }[status];
 
-      if (!response.ok) {
-        console.error("TTS status:", response.status, await response.text());
-        throw new Error(`TTS failed: ${response.statusText}`);
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      playAudio(url);
-    } catch (error) {
-      console.error("Error with OpenAI TTS API:", error);
-    }
-  };
-
-  const playAudio = (audioUrl: string) => {
-    const audio = new Audio(audioUrl);
-    audio.playbackRate = 0.7;
-    audio.play();
-  };
-
-  const handleChatResponse = useCallback(
-    async (userInput: string) => {
-      try {
-        const sys = new SystemMessage(prompt);
-        const human = new HumanMessage(userInput);
-        const message = await model.invoke([sys, human]);
-        const botReply = (message.content as string) ?? "";
-
-        setConversation((prev) => [
-          ...prev,
-          { from: userData.username, text: userInput },
-          { from: "LingoListen AI", text: botReply },
-        ]);
-
-        await convertTextToSpeech(botReply);
-      } catch (error) {
-        console.error("Error with OpenAI Chat API:", error);
-      }
-    },
-    [model, prompt, userData.username]
-  );
-
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <main className="bg-white text-blue-500 mb-32">
       <section className="text-center p-8 z-10">
         <h1 className="text-5xl font-bold">Welcome, {userData.username}</h1>
-        <p className="mt-6 mb-3 text-xl">
-          Practice conversations in {userData.learningLanguage}.
-        </p>
-        {userData.difficulty &&
-          difficultyTips[userData.difficulty as DifficultyLevel] && (
-            <p className="mb-4">
-              {difficultyTips[userData.difficulty as DifficultyLevel]}
-            </p>
+        <p className="mt-6 mb-3 text-xl">Practice conversations in {userData.learningLanguage}.</p>
+        {userData.difficulty && difficultyTips[userData.difficulty as DifficultyLevel] && (
+          <p className="mb-4">{difficultyTips[userData.difficulty as DifficultyLevel]}</p>
+        )}
+        <div className="flex flex-col items-center gap-4">
+          <span id="recording-status" role="status" aria-live="polite">{statusText}</span>
+          <MicToggle
+            isRecording={isRecording}
+            disabled={isBusy}
+            onClick={() => {
+              if (status === "idle") setReplyAudioUrl(null);
+              void toggleRecording();
+            }}
+          />
+          {recordingError && <p role="alert" className="text-red-700 max-w-xl">{recordingError}</p>}
+          {recordingUrl && (
+            <div>
+              <p className="mb-2">Your last recording</p>
+              <audio key={recordingUrl} controls src={recordingUrl} aria-label="Your last recording" />
+            </div>
           )}
-        <div className="flex flex-col items-center">
-          <span className="mb-4">
-            Click to {isRecording ? "stop recording" : "start recording"}
-          </span>
-          <button onClick={handleRecordingToggle}>
-            <MicToggle />
-          </button>
+          {replyAudioUrl && (
+            <div>
+              <p className="mb-2">AI-generated voice reply</p>
+              <audio
+                key={replyAudioUrl}
+                controls
+                autoPlay
+                src={replyAudioUrl}
+                aria-label="AI-generated voice reply"
+                onLoadedMetadata={(event) => { event.currentTarget.playbackRate = 0.7; }}
+              />
+            </div>
+          )}
         </div>
       </section>
       <section className="flex justify-center p-8">
-        {conversation.length > 0 ? (
-          <div className="chat-display bg-blue-500 text-white rounded p-4 w-1/2 md:text-lg text-sm overflow-y-scroll lg:max-h-96 md:max-h-72 sm:max-h-48">
-            {conversation.map((entry, index) => (
-              <p key={index}>
-                {entry.from}: {entry.text}
-              </p>
-            ))}
+        {conversation.length > 0 && (
+          <div className="chat-display bg-blue-500 text-white rounded p-4 w-full md:w-1/2 md:text-lg text-sm overflow-y-auto lg:max-h-96 md:max-h-72 sm:max-h-48" aria-live="polite">
+            {conversation.map((entry, index) => <p key={index}>{entry.from}: {entry.text}</p>)}
           </div>
-        ) : null}
+        )}
       </section>
     </main>
   );
