@@ -146,7 +146,7 @@ export default function Dashboard() {
                 autoPlay
                 src={replyAudioUrl}
                 aria-label="AI-generated voice reply"
-                onLoadedMetadata={(event) => { event.currentTarget.playbackRate = 0.7; }}
+                onLoadedMetadata={(event) => { event.currentTarget.playbackRate = 1.0; }}
               />
             </div>
           )}
